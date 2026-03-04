@@ -1,4 +1,4 @@
-# Microsoft Fabric Skills
+# Skills for Microsoft Fabric
 
 AI coding assistant skills for Microsoft Fabric developers and consumers. Optimized for GitHub Copilot CLI, with cross-compatibility for Claude Code, VS Code Copilot, Cursor, and other AI coding tools.
 
@@ -21,7 +21,7 @@ views for consumption
 
 **ALWAYS START WITH THIS: connect to the Fabric Skills Marketplace:**
 ```bash
-/plugin marketplace add gim-home/FabricSkills
+/plugin marketplace add gim-home/s
 ```
 
 **Full bundle (all skills):**
@@ -110,7 +110,7 @@ For interactive operations via MCP servers - no SDK/driver setup needed.
 
 ### Agents
 
-For cross-workload orchestration, FabricSkills now includes agent definitions:
+For cross-workload orchestration, Skills for Microsoft Fabric now includes agent definitions:
 
 | Agent | Purpose |
 |-------|---------|
@@ -121,9 +121,9 @@ Agents and their resources live in `agents/`. See [Architecture Overview](docs/a
 
 ## Automatic Update Checking
 
-FabricSkills includes automatic update checking. At the start of each session, the first skill invoked will:
+Skills for Microsoft Fabric includes automatic update checking. At the start of each session, the first skill invoked will:
 
-1. Check the [GitHub releases](https://github.com/gim-home/FabricSkills/releases) for the latest version
+1. Check the [GitHub releases](https://github.com/gim-home/Skills for Microsoft Fabric/releases) for the latest version
 2. Compare against your installed version (from `package.json`)
 3. If an update is available, display the changelog and provide update commands
 
@@ -168,7 +168,7 @@ See [mcp-setup/README.md](mcp-setup/README.md) for details.
 
 ### Security
 
-FabricSkills implements focused security controls:
+Skills for Microsoft Fabric implements focused security controls:
 
 - ✅ **Secret Scanning**: TruffleHog + Gitleaks detect credentials
 - ✅ **Prompt Injection Protection**: Automated scanning for dangerous patterns
