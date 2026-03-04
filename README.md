@@ -67,24 +67,42 @@ Designed to land clearly in a live keynote or recorded demo:
 
 ## Skills at a Glance
 
-### Developer Skills — Authoring
-For engineers building and operating Fabric workloads:
+## Authoring Skills (Build & Automate)
 
-- **Spark** – Data engineering pipelines, medallion architectures
-- **SQL / Warehouses** – Warehouses, SQL Endpoints, Mirrored Databases
-- **Eventhouse (KQL)** – Databases, ingestion, tables, policies
-- **Power BI** – Semantic models, metadata, deployments
-- **Automation** – CI/CD, scripted Fabric operations
+These skills perform **write‑capable, authenticated operations** in Microsoft Fabric. Designed for developers, data engineers, and CI/CD automation.
 
-### Consumer Skills — Consumption
-For analysts, demo users, and data consumers:
+| Area | What the Skill Enables |
+|-----|-------------------------|
+| **Spark** | Data engineering pipelines, medallion architectures, ETL / ELT workflows |
+| **SQL / Warehouses** | Create and manage Warehouses, SQL Endpoints, Mirrored Databases |
+| **Eventhouse (KQL)** | Create and manage KQL databases, ingestion, tables, policies, materialized views |
+| **Power BI** | Create and deploy semantic models, manage metadata and refresh |
+| **Automation** | Scripted Fabric operations for CI/CD and environment setup |
 
-| Engine | What You Can Do |
-|------|----------------|
-| Spark | Query and analyze Lakehouse tables |
-| SQL | Query Warehouses and SQL Endpoints |
-| Eventhouse | Run read‑only KQL queries |
-| Power BI | Run DAX, inspect model metadata |
+---
+
+## Consumption Skills (Query & Explore)
+
+These skills are **read‑only**, require **no SDKs or drivers**, and are optimized for analysts, demos, and exploration.
+
+| Area | What the Skill Enables |
+|-----|-------------------------|
+| **Spark** | Query and analyze Lakehouse tables |
+| **SQL / Warehouses** | Query Warehouses and Lakehouse SQL Endpoints |
+| **Eventhouse (KQL)** | Run read‑only KQL queries for real‑time analytics |
+| **Power BI** | Run DAX queries and inspect semantic model metadata |
+
+---
+
+## End‑to‑End & Utility Skills
+
+These skills cut across workloads or improve the overall experience.
+
+| Skill | Purpose |
+|------|---------|
+| **End‑to‑End Medallion Architecture** | Build a Bronze / Silver / Gold lakehouse architecture using Spark, Delta Lake, and Fabric Pipelines |
+| **Check Updates** | Compare installed skills with the FabricSkills marketplace, show current version and changelog |
+
 
 ---
 
