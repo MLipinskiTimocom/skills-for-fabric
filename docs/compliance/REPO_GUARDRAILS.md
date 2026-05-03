@@ -351,7 +351,7 @@ The following workflows are disabled to prevent PR blocking issues but can be re
   - Santhosh.Ravindran@microsoft.com
 
 **Security concerns?**
-- Follow [SECURITY.md](../SECURITY.md) reporting process
+- Follow [SECURITY.md](../../SECURITY.md) reporting process
 
 ---
 

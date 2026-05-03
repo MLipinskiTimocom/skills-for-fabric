@@ -8,7 +8,7 @@
   
   Or commit your changes - the pre-commit hook will regenerate this file.
   
-  Last generated: 2026-03-09 04:36 UTC
+  Last generated: 2026-05-01 18:55 UTC
 -->
 
 # Skill Catalog
@@ -27,15 +27,25 @@ This catalog lists all available skills-for-fabric with their purpose and trigge
 | Skill | Type | Purpose |
 |-------|------|---------|
 | [check-updates](#check-updates) | Utility | Check for skills-for-fabric marketplace updates at session s... |
+| [databricks-migration](#databricks-migration) | General | Port Databricks notebooks and jobs to Microsoft Fabric. Prov... |
+| [dataflows-authoring-cli](#dataflows-authoring-cli) | Authoring | Create, update, delete, and manage Fabric Dataflows Gen2 wit... |
+| [dataflows-consumption-cli](#dataflows-consumption-cli) | Consumption | Monitor, inspect, and discover Fabric Dataflows Gen2 via rea... |
 | [e2e-medallion-architecture](#e2e-medallion-architecture) | End-to-End | Implement end-to-end Medallion Architecture (Bronze/Silver/G... |
 | [eventhouse-authoring-cli](#eventhouse-authoring-cli) | Authoring | Execute KQL management commands (table management, ingestion... |
 | [eventhouse-consumption-cli](#eventhouse-consumption-cli) | Consumption | Run KQL queries against Fabric Eventhouse for real-time inte... |
+| [eventstream-authoring-cli](#eventstream-authoring-cli) | Authoring | Create, wire, and publish Microsoft Fabric Eventstream real-... |
+| [eventstream-consumption-cli](#eventstream-consumption-cli) | Consumption | List, inspect, and monitor Microsoft Fabric Eventstream real... |
+| [hdinsight-migration](#hdinsight-migration) | Authoring | Port Azure HDInsight Spark clusters and Hive workloads to Mi... |
 | [powerbi-authoring-cli](#powerbi-authoring-cli) | Authoring | Create, manage, and deploy Power BI semantic models inside M... |
 | [powerbi-consumption-cli](#powerbi-consumption-cli) | Consumption | The ONLY supported path for read-only Microsoft Fabric Power... |
-| [spark-authoring-cli](#spark-authoring-cli) | Authoring | Develop Microsoft Fabric Spark/data engineering workflows wi... |
-| [spark-consumption-cli](#spark-consumption-cli) | Consumption | Analyze lakehouse data interactively using Fabric Livy sessi... |
+| [search-consumption-cli](#search-consumption-cli) | Consumption | Search the OneLake catalog to find Fabric items by name, des... |
+| [spark-authoring-cli](#spark-authoring-cli) | Authoring | Develop Microsoft Fabric Spark/data engineering workflows an... |
+| [spark-consumption-cli](#spark-consumption-cli) | Consumption | Analyze lakehouse data interactively using Fabric Lakehouse ... |
+| [spark-diagnostics-cli](#spark-diagnostics-cli) | Operations | Diagnose Microsoft Fabric Spark job failures, monitor Livy s... |
 | [sqldw-authoring-cli](#sqldw-authoring-cli) | Authoring | Execute authoring T-SQL (DDL, DML, data ingestion, transacti... |
 | [sqldw-consumption-cli](#sqldw-consumption-cli) | Consumption | Execute read-only T-SQL queries against Fabric Data Warehous... |
+| [sqldw-operations-cli](#sqldw-operations-cli) | Operations | Analyze Fabric Data Warehouse performance via CLI using sqlc... |
+| [synapse-migration](#synapse-migration) | Authoring | Port Azure Synapse Analytics notebooks, SQL pools, and pipel... |
 
 ---
 
@@ -46,6 +56,36 @@ This catalog lists all available skills-for-fabric with their purpose and trigge
 **Purpose:** Check for skills-for-fabric marketplace updates at session start. Compares local version  against GitHub releases and shows changelog if updates are available.
 
 **Location:** `skills/check-updates/`
+
+---
+
+## databricks-migration
+
+**Type:** General
+
+**Purpose:** Port Databricks notebooks and jobs to Microsoft Fabric. Provides an exhaustive dbutils to notebookutils substitution table: fs operations (mount removal via OneLake Shortcuts), secret scope to Key Vault URL conversion, notebook run and exit, widget replacement with parameter-tagged cells, and library install replacement with Fabric Environments. Covers Unity Catalog three-level namespace reduction to Lakehouse two-level schemas, DBFS path conversion to OneLake, Databricks Jobs to Spark Job Definitions, MLflow tracking URI removal, and Photon to Native Execution Engine substitution.
+
+**Location:** `skills/databricks-migration/`
+
+---
+
+## dataflows-authoring-cli
+
+**Type:** Authoring
+
+**Purpose:** Create, update, delete, and manage Fabric Dataflows Gen2 with Power Query M mashup definitions via CLI (az rest / curl). Author definitions with base64-encoded mashup.pq, queryMetadata.json, and .platform parts. Create dataflows with inline definitions, modify mashup queries, bind connections, trigger Execute refresh jobs with parameter overrides, and export definitions for CI/CD.
+
+**Location:** `skills/dataflows-authoring-cli/`
+
+---
+
+## dataflows-consumption-cli
+
+**Type:** Consumption
+
+**Purpose:** Monitor, inspect, and discover Fabric Dataflows Gen2 via read-only CLI operations (az rest / curl). List dataflows across workspaces, decode base64 definitions to inspect Power Query M queries and queryMetadata.json, discover typed parameters with defaults, poll refresh operations for status, retrieve job history with timing and error details, and classify queries by staging settings.
+
+**Location:** `skills/dataflows-consumption-cli/`
 
 ---
 
@@ -79,6 +119,36 @@ This catalog lists all available skills-for-fabric with their purpose and trigge
 
 ---
 
+## eventstream-authoring-cli
+
+**Type:** Authoring
+
+**Purpose:** Create, wire, and publish Microsoft Fabric Eventstream real-time event streaming topologies via the Fabric Items REST API. Build graph-based definitions with 25 source types (Event Hubs, IoT Hub, CDC connectors, Kafka, SampleData), 8 transformation operators (Filter, Aggregate, GroupBy, Join, ManageFields, Union, Expand, SQL), 4 destination types (Lakehouse Delta, Eventhouse, Activator, Custom Endpoint), and DefaultStream/DerivedStream routing.
+
+**Location:** `skills/eventstream-authoring-cli/`
+
+---
+
+## eventstream-consumption-cli
+
+**Type:** Consumption
+
+**Purpose:** List, inspect, and monitor Microsoft Fabric Eventstream real-time event ingestion pipelines via the Fabric Items REST API. Discover Eventstreams across workspaces, decode base64-encoded graph topologies to trace event flow from source through operators to destination nodes. Validate source connection IDs, destination wiring, retention policies (1-90 days), and throughput levels.
+
+**Location:** `skills/eventstream-consumption-cli/`
+
+---
+
+## hdinsight-migration
+
+**Type:** Authoring
+
+**Purpose:** Port Azure HDInsight Spark clusters and Hive workloads to Microsoft Fabric. Removes legacy HiveContext and standalone SparkContext constructors, replacing them with the pre-instantiated SparkSession. Converts WASB and ABFS storage paths to OneLake abfss URLs via Shortcuts. Transforms Hive DDL (STORED AS ORC, external tables) to Delta Lake schemas inside Fabric Lakehouse. Maps Oozie workflow actions — spark, hive, shell, sqoop, coordinator — to Fabric Pipeline activities and schedule triggers. Introduces notebookutils for file and credential operations previously handled via subprocess or HDFS client calls.
+
+**Location:** `skills/hdinsight-migration/`
+
+---
+
 ## powerbi-authoring-cli
 
 **Type:** Authoring
@@ -99,11 +169,21 @@ This catalog lists all available skills-for-fabric with their purpose and trigge
 
 ---
 
+## search-consumption-cli
+
+**Type:** Consumption
+
+**Purpose:** Search the OneLake catalog to find Fabric items by name, description, workspace name, or type from CLI environments.
+
+**Location:** `skills/search-consumption-cli/`
+
+---
+
 ## spark-authoring-cli
 
 **Type:** Authoring
 
-**Purpose:** Develop Microsoft Fabric Spark/data engineering workflows with intelligent routing to specialized resources. Provides core workspace/lakehouse management and routes to: data engineering patterns, development workflow, or infrastructure orchestration.
+**Purpose:** Develop Microsoft Fabric Spark/data engineering workflows and write code in Fabric Notebook cells with intelligent routing to specialized resources. Provides workspace/lakehouse management, notebook code authoring (PySpark, Scala, SparkR, SQL), and routes to: data engineering patterns, development workflow, or infrastructure orchestration.
 
 **Location:** `skills/spark-authoring-cli/`
 
@@ -113,9 +193,19 @@ This catalog lists all available skills-for-fabric with their purpose and trigge
 
 **Type:** Consumption
 
-**Purpose:** Analyze lakehouse data interactively using Fabric Livy sessions and PySpark/Spark SQL for advanced analytics, DataFrames, cross-lakehouse joins, Delta time-travel, and unstructured/JSON data.
+**Purpose:** Analyze lakehouse data interactively using Fabric Lakehouse Livy API sessions and PySpark/Spark SQL for advanced analytics, DataFrames, cross-lakehouse joins, Delta time-travel, and unstructured/JSON data.
 
 **Location:** `skills/spark-consumption-cli/`
+
+---
+
+## spark-diagnostics-cli
+
+**Type:** Operations
+
+**Purpose:** Diagnose Microsoft Fabric Spark job failures, monitor Livy session health, and analyze performance bottlenecks using Fabric REST APIs and CLI tools.
+
+**Location:** `skills/spark-diagnostics-cli/`
 
 ---
 
@@ -139,15 +229,37 @@ This catalog lists all available skills-for-fabric with their purpose and trigge
 
 ---
 
+## sqldw-operations-cli
+
+**Type:** Operations
+
+**Purpose:** Analyze Fabric Data Warehouse performance via CLI using sqlcmd and queryinsights views. Diagnose slow queries, SQL pool pressure, cache coldness, and recommend clustering keys.
+
+**Location:** `skills/sqldw-operations-cli/`
+
+---
+
+## synapse-migration
+
+**Type:** Authoring
+
+**Purpose:** Port Azure Synapse Analytics notebooks, SQL pools, and pipelines to Microsoft Fabric. Translates mssparkutils calls to notebookutils (including the env→runtime namespace change), replaces Linked Services with Fabric Data Connections and OneLake Shortcuts, rewrites Dedicated SQL Pool DDL by removing DISTRIBUTION and CLUSTERED COLUMNSTORE hints, substitutes PolyBase external tables with COPY INTO, and maps Synapse Pipeline activities to Fabric Data Pipeline equivalents.
+
+**Location:** `skills/synapse-migration/`
+
+---
+
 ## Skill Categories
 
 ### By Type
 
 | Type | Skills |
 |------|--------|
-| Authoring | eventhouse-authoring-cli, powerbi-authoring-cli, spark-authoring-cli, sqldw-authoring-cli |
-| Consumption | eventhouse-consumption-cli, powerbi-consumption-cli, spark-consumption-cli, sqldw-consumption-cli |
+| Authoring | dataflows-authoring-cli, eventhouse-authoring-cli, eventstream-authoring-cli, hdinsight-migration, powerbi-authoring-cli, spark-authoring-cli, sqldw-authoring-cli, synapse-migration |
+| Consumption | dataflows-consumption-cli, eventhouse-consumption-cli, eventstream-consumption-cli, powerbi-consumption-cli, search-consumption-cli, spark-consumption-cli, sqldw-consumption-cli |
 | End-to-End | e2e-medallion-architecture |
+| General | databricks-migration |
+| Operations | spark-diagnostics-cli, sqldw-operations-cli |
 | Utility | check-updates |
 
 ---

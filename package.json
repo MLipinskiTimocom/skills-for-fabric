@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/skills-for-fabric",
-  "version": "0.2.6",
+  "version": "0.3.0",
   "description": "AI coding assistant skills for Microsoft Fabric developers and consumers",
   "repository": {
     "type": "git",
@@ -35,6 +35,7 @@
   ],
   "scripts": {
     "postinstall": "node -e \"console.log('\\n✅ Skills for Fabric installed. Run install.ps1 (Windows) or install.sh (Unix) to configure your AI tools.\\n')\"",
+    "report:coverage-gaps": "python tests/coverage_gap_report.py",
     "test": "pytest",
     "test:semantic": "pytest -m semantic",
     "test:integration": "pytest -m integration"

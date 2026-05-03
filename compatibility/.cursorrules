@@ -41,6 +41,9 @@ Developers use REST APIs to manage artifacts, then protocol-specific connections
 - Use CTAS for large transformations
 - Prefer stored procedures for reusable logic
 - Always include TOP/LIMIT when exploring data
+- Authoring skill: `skills/sqldw-authoring-cli/SKILL.md`
+- Consumption skill: `skills/sqldw-consumption-cli/SKILL.md`
+- Operations skill: `skills/sqldw-operations-cli/SKILL.md`
 
 ### Notebooks
 - Tag first cell as "parameters" for parameterized notebooks
@@ -61,6 +64,29 @@ Developers use REST APIs to manage artifacts, then protocol-specific connections
 - Primary CLI tool: `az rest` against the Kusto REST API (see eventhouse skills for patterns)
 - Authoring skill: `skills/eventhouse-authoring-cli/SKILL.md`
 - Consumption skill: `skills/eventhouse-consumption-cli/SKILL.md`
+
+### Spark Diagnostics
+- Diagnostics skill: `skills/spark-diagnostics-cli/SKILL.md` — read-only triage for failed jobs, stuck sessions, performance bottlenecks
+
+### Dataflows Gen2 (Data Integration)
+- Use Fabric REST API for dataflow lifecycle management and Power Query M mashup authoring
+- Primary CLI tool: `az rest` against the Fabric REST API
+- Authoring skill: `skills/dataflows-authoring-cli/SKILL.md`
+- Consumption skill: `skills/dataflows-consumption-cli/SKILL.md`
+
+### Eventstreams (Real-Time Intelligence)
+- Create and manage Eventstream topologies via Fabric REST API
+- Supports 25 source types, 8 operators (Filter, Aggregate, GroupBy, SQL, etc.), 4 destination types
+- Node names must be alphanumeric PascalCase, 3-63 characters
+- Primary CLI tool: `az rest` against the Fabric REST API (see eventstream skills for patterns)
+- Authoring skill: `skills/eventstream-authoring-cli/SKILL.md`
+- Consumption skill: `skills/eventstream-consumption-cli/SKILL.md`
+
+### Catalog Search (Item Discovery)
+- Use `POST /v1/catalog/search` to find items across workspaces by name, description, or workspace name
+- Filter by type with `"filter": "Type eq 'Lakehouse'"` syntax
+- Use empty search string with type filter to list all items of a type
+- Consumption skill: `skills/search-consumption-cli/SKILL.md`
 
 ### Semantic Models (DAX)
 - Prefer measures over calculated columns

@@ -51,6 +51,28 @@ rules:
   - name: kql_skills
     description: Authoring skill is eventhouse-authoring-cli, consumption skill is eventhouse-consumption-cli
     reference: skills/eventhouse-authoring-cli/SKILL.md
+
+  - name: spark_diagnostics
+    description: Use spark-diagnostics-cli for read-only Spark job diagnosis, session health, and performance triage
+    reference: skills/spark-diagnostics-cli/SKILL.md
+
+  # Dataflows Gen2 (Data Integration)
+  - name: dataflows_skills
+    description: Authoring skill is dataflows-authoring-cli, consumption skill is dataflows-consumption-cli
+    reference: skills/dataflows-authoring-cli/SKILL.md
+
+  - name: eventstream_skills
+    description: Authoring skill is eventstream-authoring-cli, consumption skill is eventstream-consumption-cli
+    reference: skills/eventstream-authoring-cli/SKILL.md
+
+  - name: catalog_search
+    description: Use POST /v1/catalog/search to find items across workspaces by name, description, or type
+    reference: skills/search-consumption-cli/SKILL.md
+
+  # Warehouse Operations
+  - name: sqldw_skills
+    description: Authoring skill is sqldw-authoring-cli, consumption skill is sqldw-consumption-cli, operations skill is sqldw-operations-cli
+    reference: skills/sqldw-operations-cli/SKILL.md
     
   # Security
   - name: no_hardcoded_secrets
@@ -75,6 +97,7 @@ documentation_links:
   warehouse: https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
   notebooks: https://learn.microsoft.com/en-us/fabric/data-engineering/how-to-use-notebook
   pipelines: https://learn.microsoft.com/en-us/fabric/data-factory/data-factory-overview
+  dataflows_gen2: https://learn.microsoft.com/en-us/fabric/data-factory/dataflows-gen2-overview
   kql: https://learn.microsoft.com/en-us/fabric/real-time-intelligence/create-database
   kql_query_reference: https://learn.microsoft.com/en-us/kusto/query/
   kusto_cli: https://learn.microsoft.com/en-us/kusto/tools/kusto-cli

@@ -27,4 +27,18 @@ __pycache__/
 # Eval test results — individual per-skill detail files
 # Only the merged summary (eval-results.md) and regression_analysis.md are tracked
 tests/full-eval-tests/result/eval-*-results.md
+tests/full-eval-tests/result/eval-run-telemetry.json
+coverage-gap-report.json
+coverage-enforcement.json
+validation-results.json
+security-report.json
+
+# Plugin build artifacts — materialized from plugins/<name>/.github/plugin/plugin.json
+# by build/build_plugins.py. Internal repo (gim-home/skills-for-fabric) keeps only
+# manifests + canonical sources/, agents/, common/. The sync-to-public step (manual
+# today) runs the build and commits the materialized output to microsoft/skills-for-fabric.
+plugins/*/skills/
+plugins/*/agents/
+plugins/*/common/
+plugins/*/.mcp.json
 

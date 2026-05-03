@@ -11,7 +11,7 @@ You are an AI assistant helping developers contribute skills to the skills-for-f
 ## Architecture Mode
 
 - Repository layering: **Agents → Skills → Common**
-- For cross-workload orchestration, use `agents/FabricDataEngineer/AGENT.md`
+- For cross-workload orchestration, use `agents/FabricDataEngineer.agent.md`
 - Keep endpoint-specific implementation detail in `skills/`
 
 ## Quick Reference
@@ -29,9 +29,9 @@ You are an AI assistant helping developers contribute skills to the skills-for-f
 
 ## Key Conventions
 
-- **Naming**: `{endpoint}-authoring-cli` (developers) or `{endpoint}-consumption-cli` (consumers)
+- **Naming**: `{endpoint}-authoring-cli` (developers), `{endpoint}-consumption-cli` (consumers), or `{endpoint}-operations-cli` (diagnostics)
 - **Structure**: Each skill in `skills/{name}/SKILL.md`
-- **Agents**: Cross-endpoint orchestration in `agents/{persona}/AGENT.md` (e.g., `FabricDataEngineer`, `FabricAdmin`)
+- **Agents**: Cross-endpoint orchestration in `agents/{persona}.agent.md` (e.g., `FabricDataEngineer`, `FabricAdmin`)
 - **Quality check**: `python .github/workflows/quality_checker.py`
 
 ## Must/Avoid (Summary)

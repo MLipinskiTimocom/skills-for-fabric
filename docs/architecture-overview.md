@@ -76,7 +76,7 @@ skills-for-fabric/
 ├── common/                    # Shared reference documents
 │   ├── COMMON-CORE.md
 │   ├── COMMON-CLI.md
-│   └── {ENDPOINT}-{AUTHORING|CONSUMPTION}-CORE.md
+│   └── {ENDPOINT}-{AUTHORING|CONSUMPTION|MONITORING}-CORE.md
 ├── plugins/                   # Skill bundles for distribution
 │   ├── authoring/
 │   └── consumption/

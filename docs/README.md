@@ -8,8 +8,9 @@ New to skills-for-fabric? Start here:
 
 1. **[Architecture Overview](architecture-overview.md)** — Understand the repository structure
 2. **[Skill Authoring Guide](skill-authoring-guide.md)** — How to create a skill
-3. **[Quality Requirements](quality-requirements.md)** — What makes a good skill
-4. **[Testing Guide](testing-guide.md)** — How to validate your changes
+3. **[Contributor Kit](contributor-kit.md)** — Ownership and coverage checklist for contributors
+4. **[Quality Requirements](quality-requirements.md)** — What makes a good skill
+5. **[Testing Guide](testing-guide.md)** — How to validate your changes
 
 ## Contributor Guides
 
@@ -21,6 +22,7 @@ New to skills-for-fabric? Start here:
 |-------|---------|
 | [Architecture Overview](architecture-overview.md) | Repository structure, folder purposes, cross-references |
 | [Skill Authoring Guide](skill-authoring-guide.md) | Create skills: naming, structure, descriptions, what to avoid |
+| [Contributor Kit](contributor-kit.md) | Ownership manifest, coverage expectations, PR shape |
 | [Common Folder Guide](common-folder-guide.md) | What belongs in `common/`, CORE vs CLI pattern |
 | [Plugins Guide](plugins-guide.md) | How skills are bundled into plugins |
 | [Quality Requirements](quality-requirements.md) | Token limits, similarity rules, trigger disambiguation |

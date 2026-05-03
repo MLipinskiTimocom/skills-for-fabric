@@ -12,6 +12,7 @@ Every skill must pass quality checks before merging. The quality checker validat
 2. **Semantic disambiguation** — Triggers don't conflict with other skills
 3. **Content quality** — Descriptions, examples, code blocks
 4. **Cross-references** — All links resolve to existing files
+5. **Common-infra compliance** — Generic auth/token/tooling guidance is rooted in `common/`
 
 ## Structural Requirements
 
@@ -22,6 +23,8 @@ Every skill must pass quality checks before merging. The quality checker validat
 | YAML frontmatter with `name` and `description` | ✅ Critical | Blocks PR |
 | Description length ≤ 1023 characters | ✅ Critical | Blocks PR |
 | Update notice blockquote | ✅ Critical (except check-updates) | Blocks PR |
+| Markdown files are valid UTF-8 and free of high-confidence mojibake markers | ✅ Critical | Blocks PR |
+| Generic auth/token/sqlcmd setup guidance must reference `common/` | ✅ Critical | Blocks PR |
 | Must/Prefer/Avoid sections | ⚠️ Warning | Review recommended |
 | Examples section | ⚠️ Warning | Review recommended |
 | Code blocks with language tags | ⚠️ Warning | Review recommended |
@@ -49,6 +52,13 @@ Required format (blockquote starting with "Update Check"):
 > **Update Check — ONCE PER SESSION (mandatory)**
 > The first time this skill is used in a session, run the **check-updates** skill...
 ```
+
+### Encoding Integrity
+
+Skill markdown must be saved as valid UTF-8 and stay free of obvious mojibake sequences
+such as corrupted em dashes or section signs. The checker looks for a short list of
+high-confidence corruption markers like `ΓÇö`, `ΓÇô`, `ΓåÆ`, and `┬º` so it can block
+broken rendering without flagging normal Unicode punctuation.
 
 ## Semantic Disambiguation
 
@@ -206,6 +216,45 @@ See [COMMON-CLI.md](../common/COMMON-CLI.md)
 
 # ❌ Invalid (file doesn't exist)
 See [MISSING.md](../../common/MISSING.md)
+```
+
+## Common-Infra Compliance
+
+Shared setup belongs in `common/`. Skills can keep endpoint-specific commands and workflows, but generic auth, token, and shared tool guidance must point back to the common docs instead of standing alone.
+
+### Blocking Scope
+
+The current blocking checks focus on two high-drift areas:
+
+1. **Authentication and token guidance**
+   - Examples: `az login`, `az account get-access-token`, generic token-acquisition notes
+   - Must reference shared auth guidance from `COMMON-CORE.md` and `COMMON-CLI.md`
+2. **Shared SQL tooling setup**
+   - Examples: `winget install sqlcmd`, `sqlcmd --version`, "`sqlcmd` not found"
+   - Must reference `COMMON-CLI.md` SQL / TDS guidance
+
+### Examples
+
+```markdown
+# ✅ Good
+- [COMMON-CORE.md](../../common/COMMON-CORE.md) — authentication, token audiences
+- [COMMON-CLI.md](../../common/COMMON-CLI.md) — `az rest`, `az login`, token acquisition
+
+### MUST DO
+- Run `az login` before using CLI auth flows
+```
+
+```markdown
+# ❌ Bad
+### Authentication
+- Run `az login`
+- Acquire a token with `az account get-access-token`
+```
+
+```markdown
+# ❌ Bad
+| `sqlcmd` | `winget install sqlcmd` |
+> sqlcmd --version 2>/dev/null || echo "INSTALL: winget install sqlcmd"
 ```
 
 ## Running Quality Checks

@@ -7,10 +7,23 @@ This guide explains how to test skills-for-fabric before submitting changes.
 | Test | File | Purpose |
 |------|------|---------|
 | Quality Checker | `.github/workflows/quality_checker.py` | Structural and semantic validation |
+| Skill Catalog Sync | `.github/scripts/generate_skill_catalog.py --check` | Verifies `docs/skill-catalog.md` matches checked-in skill frontmatter |
+| Coverage Gap Report | `tests/coverage_gap_report.py` | Advisory audit of smoke / individual / combined eval coverage |
+| Coverage Enforcement | `tests/coverage_enforcement.py` | Enforced new-skill ownership + smoke / eval policy with governed allow-missing entries |
 | Semantic Tests | `tests/test_semantic.py` | Naming, similarity, description quality |
 | Routing Tests | `tests/test_skill_routing.py` | Prompts route to correct skills |
 
 > Current automated tests target `skills/` content. Agent definitions should still be validated manually for routing boundaries, reference integrity, and delegation clarity.
+
+### Smoke Test Principles
+
+Smoke tests (`tests/run-smoke-tests.ps1` → `tests/tests.json`) validate each skill end-to-end against a live Fabric workspace via `copilot --yolo`.
+
+1. **Dynamic test data only.** All test data (lakehouses, tables, notebooks, semantic models, eventhouses) must be provisioned dynamically during test setup — never rely on pre-existing static data. The setup script (`tests/testdata/setup_test_env.py`) creates a fresh, timestamped workspace with all required artifacts so tests are self-contained and reproducible.
+
+2. **Use the shared test tenant only.** All smoke tests must target the tenant configured in the setup script (`E2EAPIMSIT2.onmicrosoft.com`), authenticated via certificate from Azure Key Vault. Do **not** use personal Microsoft tenants or any other environment. Every test prompt should reference the dynamically provisioned workspace name (injected via the `{{WORKSPACE}}` placeholder in `tests.json`), not a hardcoded workspace on a separate tenant.
+
+3. **Fast, single-skill, major-scenario coverage.** Smoke tests must be fast-running and limited to the core scenarios each skill is expected to handle — typically one or two prompts per skill. They should invoke only a single skill per test case. Each smoke test has a hard timeout of **5 minutes** — if a test exceeds this limit, it is automatically failed with a timeout error. Slower, more detailed tests — including multi-skill workflows and cross-skill handoffs — belong in the full eval suite (`tests/full-eval-tests/`), not in smoke.
 
 ## Quick Start
 
@@ -26,9 +39,71 @@ pip install PyYAML requests pytest
 # Quality checker
 python .github/workflows/quality_checker.py
 
-# Pytest tests
-pytest tests/ -v
+# Skill catalog sync
+python .github/scripts/generate_skill_catalog.py --check
+
+# Coverage gap report
+python tests/coverage_gap_report.py
+
+# Coverage enforcement
+python tests/coverage_enforcement.py --base-ref origin/main
+
+# Fast tests
+python -m pytest tests/test_semantic.py -q
+python -m unittest tests/test_coverage_gap_report.py tests/test_coverage_enforcement.py tests/test_validation_results_check.py tests/test_skill_ownership_manifest.py -v
 ```
+
+`tests/coverage_gap_report.py` remains advisory. `tests/coverage_enforcement.py` is the
+blocking policy check for new-skill ownership / coverage requirements and for keeping
+the current allow-missing baseline governed in `.github/coverage-policy.yml`.
+
+## Contributor pre-merge validation
+
+For a skill PR, these are the current checks contributors should understand before merge:
+
+| Validation | Command / Entry Point | What it tells you | When to use it |
+|------------|------------------------|-------------------|----------------|
+| Quality checker | `python .github/workflows/quality_checker.py` | Structural, semantic, and reference validation | Every skill PR |
+| Skill catalog sync | `python .github/scripts/generate_skill_catalog.py --check` | Whether `docs/skill-catalog.md` is in sync with current skill frontmatter | When skill frontmatter changes |
+| Coverage asset audit | `python tests/coverage_gap_report.py` | Whether the repo still sees your skill as missing smoke / individual eval assets | Every skill PR |
+| Coverage enforcement | `python tests/coverage_enforcement.py --base-ref origin/main` | Whether new skills satisfy ownership / smoke / eval policy and current gaps are governed | Every skill PR |
+| Ownership manifest validation | `python -m unittest tests/test_skill_ownership_manifest.py -v` | Whether `.github/skill-ownership.yml` is in sync | When ownership manifest changes |
+| Python tests | `pytest tests/ -v` or targeted test files | Repo test coverage for changed tests / helpers | When tests change |
+| Smoke harness | `powershell -File tests\testFabricSkills.ps1 -testName "<smoke-test-name>" -directoryPath C:\temp\fabric-smoke` | Executes a specific smoke scenario from `tests/tests.json` | When smoke coverage is present / updated |
+| Full eval suite runner | `powershell -File tests\run-full-tests.ps1 -TestFolder C:\temp\fabric-full-eval` | Runs the current full eval suite and produces result files | When a dedicated eval environment is available or full-suite validation is requested |
+
+Important distinctions:
+
+- `tests/coverage_gap_report.py` is a **report script**, not a behavioral test runner.
+- `tests/coverage_enforcement.py` is the **blocking policy check** for new-skill coverage expectations.
+- `tests/testFabricSkills.ps1` is the current **manual smoke entry point**.
+- `tests/run-full-tests.ps1` is the current **manual full-eval suite runner**.
+
+PR automation now runs a fast validation workflow that covers:
+
+- `quality_checker.py`
+- `.github/scripts/generate_skill_catalog.py --check`
+- `tests/test_semantic.py`
+- `tests/test_coverage_gap_report.py`
+- `tests/test_coverage_enforcement.py`
+- `tests/test_validation_results_check.py`
+- `tests/test_skill_ownership_manifest.py`
+- `tests/coverage_enforcement.py`
+
+The workflow also posts one sticky PR summary comment with changed-skill ownership /
+smoke / individual / combined coverage status and blocks skill PRs that omit the
+required `Validation Results` section.
+
+Contributors should still record validation results in the PR using a text-first
+`Validation Results` section:
+
+- manual smoke results when smoke coverage is appropriate
+- manual individual-eval results for new skills or material behavior changes
+- manual combined-eval results only for paired / handoff workflows
+
+For each row, include the exact command or eval plan used, `PASS` / `FAIL` / `N/A`,
+and a short summary. Logs / pasted output are preferred; screenshots are optional
+supporting artifacts.
 
 ## Quality Checker
 
@@ -113,7 +188,7 @@ Validates skill semantics:
 |------------|---------|
 | `TestTriggerUniqueness` | No duplicate triggers, ambiguous triggers have qualifiers |
 | `TestDescriptionSimilarity` | Jaccard similarity < 30% between skills |
-| `TestNamingConventions` | Names follow `{endpoint}-{authoring|consumption}-cli` pattern |
+| `TestNamingConventions` | Names follow `{endpoint}-{authoring|consumption|monitoring}-cli` pattern |
 | `TestDescriptionQuality` | Descriptions start with action verbs, mention technologies |
 
 ### Routing Tests (`test_skill_routing.py`)
@@ -184,16 +259,25 @@ git commit --no-verify -m "message"
 
 ### Pull Request Checks
 
-When you push changes to a PR that modifies `skills/**/*.md`:
+When you push a PR that changes skills or the validation pipeline:
 
-1. **Quality Check** (`quality-check.yml`)
-   - Runs `quality_checker.py`
-   - Posts results as PR comment
-   - Uploads `quality-report.json` as artifact
+1. **Skill PR Validation** (`quality-check.yml`)
+   - Runs quality checker, semantic/unit tests, ownership validation, and coverage enforcement
+   - Posts one sticky PR validation summary comment
+   - Uploads `quality-report.json` and `coverage-enforcement.json` as artifacts
 
 2. **Security Audit** (`security-audit.yml`)
    - Scans for secrets and sensitive data
    - Validates security guidelines
+   - Uploads `security-report.json` as an artifact without adding extra PR comment noise
+
+3. **Daily Coverage Gap Report** (`daily-coverage-gap-report.yml`)
+   - Runs `tests/coverage_gap_report.py` on a daily schedule
+   - Uploads `coverage-gap-report.json` as a workflow artifact
+   - Can also be triggered manually with `workflow_dispatch`
+
+> Fast PR automation still does **not** execute manual smoke or full-eval workflows for
+> you. Record the relevant manual evidence in the PR whenever the change needs it.
 
 ### Workflow Triggers
 
@@ -201,12 +285,35 @@ When you push changes to a PR that modifies `skills/**/*.md`:
 on:
   pull_request:
     branches: [ main, master ]
-    paths: 
+    paths:
       - 'skills/**/*.md'
+      - '.github/coverage-policy.yml'
+      - '.github/skill-ownership.yml'
+      - '.github/workflows/*.py'
+      - '.github/workflows/*.yml'
+      - 'tests/**/*.md'
+      - 'tests/**/*.py'
+      - 'tests/tests.json'
   push:
     branches: [ main, master ]
     paths:
       - 'skills/**/*.md'
+      - '.github/coverage-policy.yml'
+      - '.github/skill-ownership.yml'
+      - '.github/workflows/*.py'
+      - '.github/workflows/*.yml'
+      - 'tests/**/*.md'
+      - 'tests/**/*.py'
+      - 'tests/tests.json'
+```
+
+Scheduled coverage reporting is separate:
+
+```yaml
+on:
+  schedule:
+    - cron: '0 12 * * *'
+  workflow_dispatch:
 ```
 
 ## Testing Locally with Copilot CLI

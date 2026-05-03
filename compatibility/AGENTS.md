@@ -26,6 +26,9 @@ Fabric REST APIs: https://learn.microsoft.com/en-us/rest/api/fabric/articles/
 | Notebooks | https://learn.microsoft.com/en-us/fabric/data-engineering/how-to-use-notebook |
 | Pipelines | https://learn.microsoft.com/en-us/fabric/data-factory/data-factory-overview |
 | KQL Database / Eventhouse | https://learn.microsoft.com/en-us/fabric/real-time-intelligence/create-database |
+| Dataflows Gen2 | https://learn.microsoft.com/en-us/fabric/data-factory/dataflows-gen2-overview |
+| Eventstream | https://learn.microsoft.com/en-us/fabric/real-time-intelligence/event-streams/overview |
+| Catalog Search | https://learn.microsoft.com/en-us/rest/api/fabric/core/catalog/search |
 | Semantic Models | https://learn.microsoft.com/en-us/power-bi/connect-data/service-datasets-understand |
 | Data Agents | https://learn.microsoft.com/en-us/fabric/data-science/concept-data-agent |
 | Data Agent Evaluation | https://learn.microsoft.com/en-us/fabric/data-science/fabric-data-agent-sdk |
@@ -41,12 +44,16 @@ Fabric REST APIs: https://learn.microsoft.com/en-us/rest/api/fabric/articles/
 - PySpark with mssparkutils for notebooks
 - T-SQL with surface area limitations for Warehouse
 - KQL for real-time analytics (always use time filters)
+- Power Query M for Dataflows Gen2 transformations (see `dataflows-authoring-cli` and `dataflows-consumption-cli` skills)
+- Eventstream for real-time event ingestion (graph-based topology with sources, operators, destinations)
 - DAX for Semantic Model measures
+- Spark diagnostics skill: `skills/spark-diagnostics-cli/SKILL.md` — read-only triage for failed jobs, stuck sessions, performance bottlenecks
 
 ### Operations
 - REST APIs for programmatic management
 - Pipelines for orchestration
 - Parameterize everything for reusability
+- Warehouse operations skill: `skills/sqldw-operations-cli/SKILL.md` — performance diagnostics, slow queries, query insights
 
 ## Constraints
 
@@ -56,6 +63,8 @@ Fabric REST APIs: https://learn.microsoft.com/en-us/rest/api/fabric/articles/
 - Use `has` over `contains` for indexed string search in KQL
 - Use `.create-merge table` and `.create-or-alter function` for idempotent KQL schema deployment
 - Discover KQL Database query URI via Fabric REST API before connecting
+- Use alphanumeric PascalCase names (3–63 chars) for Eventstream nodes
+- Use SQL operator for CDC Debezium payload flattening in Eventstreams
 - Handle secrets via Key Vault or environment variables
 - Validate T-SQL features against supported surface area
 
