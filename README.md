@@ -46,12 +46,11 @@ views for consumption
 
 ### Manual Installation
 
-1. Clone this repository
-2. Add the marketplace from your local clone:
-   ```bash
-   copilot plugin marketplace add /path/to/skills-for-fabric
-   copilot plugin install fabric-skills@fabric-collection
-   ```
+```bash
+git clone https://github.com/microsoft/skills-for-fabric
+copilot plugin marketplace add ./skills-for-fabric
+copilot plugin install fabric-skills@fabric-collection
+```
 
 
 
