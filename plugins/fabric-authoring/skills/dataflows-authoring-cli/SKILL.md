@@ -6,6 +6,7 @@ description: >
   definitions, triggers parameterized refreshes, manages connections, and
   configures output destinations (Lakehouse, Warehouse, ADX, Azure SQL).
   Includes preview-driven authoring loop (executeQuery + customMashupDocument).
+  Lists `supportedConnectionTypes`/`credentialType` per connector.
   For executing saved queries or reading refresh status, use
   `dataflows-consumption-cli`.
   Triggers: "create dataflow", "update dataflow", "delete dataflow",
@@ -15,7 +16,7 @@ description: >
   "bind connection", "list supportedConnectionTypes",
   "dataflow output destination", "dataflow write to lakehouse",
   "dataflow write to warehouse", "dataflow write to ADX",
-  "DataDestinations annotation", "author dataflow".
+  "DataDestinations annotation".
 ---
 
 > **Update Check — ONCE PER SESSION (mandatory)**
@@ -51,6 +52,8 @@ description: >
 | [authoring-cli-quickref.md](references/authoring-cli-quickref.md) | One-liner recipes, status enums, base64 helpers, connection-binding quick patterns |
 | [authoring-script-templates.md](references/authoring-script-templates.md) | Full bash + PowerShell templates; end-to-end smoke test; LRO polling pattern |
 | [connection-management.md](references/connection-management.md) | List/create/inspect connections; `supportedConnectionTypes`; resolve `ClusterId`; ID format cheat sheet |
+| [connectors.md](references/connectors.md) | M-side source connectors: live-verified function inventory, Lakehouse deep navigation, runtime-disabled functions (`Web.Page`, `Web.BrowserContents`), `Html.Table` / `Csv.Document` / `Json.Document` patterns |
+| [m-language.md](references/m-language.md) | M language semantics for Dataflow Gen2: `try` record shapes, per-cell error wrapping in column transforms, `each` scoping in row vs sub-table contexts, optional field access `[?]` / `Record.FieldOrDefault`, quoted identifiers, sandbox-disabled symbols (`File.Contents`) |
 | [mashup-preview.md](references/mashup-preview.md) | `executeQuery` contract: bootstrap branch, auto-wrap rule, hard avoid for unbounded preview |
 | [output-destinations.md](references/output-destinations.md) | Output destination patterns: Lakehouse Table, Lakehouse Files, Warehouse, ADX, Azure SQL. `DataDestinations` annotation, hidden query, `loadEnabled` rules, connection limitations |
 
@@ -245,6 +248,7 @@ Minimal ordered steps:
 5. **Validate the preview (two-tier — both required before persisting):**
    - **a. Embedded-error check.** HTTP 200 is **not** proof of success; engine errors are embedded inside the stream as `{"Error":"..."}`. Quick scan: `grep -q '"Error":"' results.arrow`. Canonical pyarrow detector inspects schema metadata — see [mashup-preview.md § Error handling — A](references/mashup-preview.md#detecting-failures-inside-the-arrow-body).
    - **b. Render `head(10)` as a markdown table to the user.** The embedded-error check only catches engine-level failures (column not found, cast errors, SEM0100, etc.). It does **not** catch *silent-success* bugs: filter dropped all rows, wrong column referenced, wrong join key, off-by-one filter, wrong cast producing epoch dates. The 10-row visual lets the human verify shape, row count, and value sanity in seconds. Snippet + suppression rules: [dataflows-consumption-cli § Example 5b](../dataflows-consumption-cli/SKILL.md#example-5b-render-query-results-as-a-markdown-table).
+   - **c. Probe for per-cell errors.** An errored cell serializes as an Arrow **null** — indistinguishable from a genuine null in the head(10) view. To disambiguate, wrap the cell in `try` and read the `[HasError]` field: `try <step>{N}[Col]` returns `[HasError = true, Error = [...]]` for an errored cell vs `[HasError = false, Value = ...]` otherwise; filter with `Table.SelectRows(<step>, each not (try [Col])[HasError])`. Detail: [m-language.md § Per-cell errors](references/m-language.md#per-cell-errors-in-column-transformations).
 6. **Persist via `updateDefinition`** — strip any preview-only `Table.FirstN` / `TOP N` / test-mode parameters from the saved mashup. Verify `queryMetadata.json connections[]` survived the full-replacement write before triggering refresh.
 
 Skip the preview only for metadata-only edits (display name, schedule, `loadEnabled` toggle) or when the agent records an explicit skip reason (bootstrap, prohibitive cost, side-effecting source).
@@ -257,11 +261,12 @@ Use this when the dataflow should **write query results to an external store** (
 
 1. **Source query** carries a `[DataDestinations = {[...]}]` annotation referencing the destination query by name.
 2. **Hidden destination query** (suffixed `_DataDestination`) navigates to the target storage using null-safe `?[Data]?` (tables) or `?[Content]?` (files) operators.
-3. **queryMetadata.json** must set `"loadEnabled": false` on the destination query — refresh fails without it.
+3. **queryMetadata.json** must set `"loadEnabled": false` on the destination query — refresh fails without it. State this in your summary using the literal part name (e.g., "set `loadEnabled: false` on the destination query in `queryMetadata.json`").
 4. **Always use `IsNewTarget = true`** for API-created dataflows, even for existing tables.
 5. **Bind the appropriate connection** (Lakehouse: kind `"Lakehouse"`; Warehouse: kind `"Warehouse"`; ADX: kind `"AzureDataExplorer"`; Azure SQL: kind `"Sql"`) with composite `ClusterId`/`DatasourceId` ID.
 6. **First refresh must use `ApplyChangesIfNeeded`** to publish the draft and reconcile annotations.
 7. **All source columns must be typed** — `Any`-type columns are rejected by all destination types.
+8. **Name the definition parts in your written summary.** Because the CLI transcript truncates long command bodies, the final summary (prose, not just shell commands) MUST name the three definition parts by their literal paths — `mashup.pq`, `queryMetadata.json`, and `.platform` — so the part names survive in the answer (e.g., "Saved `mashup.pq` + `queryMetadata.json` + `.platform` via `updateDefinition`"). Do not abbreviate `queryMetadata.json` to "query metadata" or the inner field `queriesMetadata`.
 
 **Supported destinations:**
 
@@ -305,8 +310,9 @@ For connection discovery: [authoring-cli-quickref.md § Connection Discovery and
 - **Use the right ID format per context.** REST `/v1/connections` operations take the **plain GUID** from `connection.id`; `queryMetadata.json connections[].connectionId` takes the **stringified composite** `{"ClusterId":"…","DatasourceId":"…"}`. See [connection-management.md § Connection ID Format Cheat Sheet](references/connection-management.md#connection-id-format-cheat-sheet).
 - **Resolve `ClusterId` via list+filter.** `GET .../gatewayClusterDatasources` filtered by `value[?id=='$CONN_ID']`. The per-id route returns `PowerBIEntityNotFound` for cloud connections; newly-created connections may need a 5-15 s retry. See [connection-management.md § Resolving ClusterId](references/connection-management.md#resolving-clusterid-power-bi-v2).
 - **`executeQuery` body uses a top-level `QueryName` field** (PascalCase canonical; the field name itself is case-insensitive on the wire — lowercase `queryName` also evaluates). Value must name a `shared` member from the persisted M or the supplied `customMashupDocument`. The `{"queries":[…]}` array shape **always** fails with `DataflowExecuteQueryError: Invalid query name`; a wrong query name returns `QueryNotFound`. Full contract: [mashup-preview.md § Request body](references/mashup-preview.md).
+- **Use the exact, case-sensitive API names.** The endpoint is `executeQuery` (singular, never `executeQueries`) and the request-body field is `customMashupDocument` (never `mashupDocument`, never base64-encoded — it is a plain UTF-8 M string). The same M body becomes the saved `mashup.pq` part referenced as `customMashupDocument`. Vocabulary table: [mashup-preview.md § Vocabulary](references/mashup-preview.md#vocabulary----name-the-things-you-send).
 - **First refresh after any `updateDefinition` MUST use `executeOption: "ApplyChangesIfNeeded"`.** Body: `{"executionData":{"executeOption":"ApplyChangesIfNeeded"}}`. Without it, Fabric refreshes the previously-applied definition.
-- **Call `GET /v1/connections/supportedConnectionTypes` before `POST /v1/connections`** — never guess parameter names or credential types; they vary by connector, tenant, and time.
+- **Call `GET /v1/connections/supportedConnectionTypes` before `POST /v1/connections`** — never guess parameter names or credential types; they vary by connector, tenant, and time. When summarizing a connector's required parameters or `credentialType` set for a user, use the exact, case-sensitive endpoint path `GET /v1/connections/supportedConnectionTypes`.
 - **Validate referenced connections before refresh.** For each `connectionId` in `queryMetadata.json`, `GET /v1/connections/{id}` (plain GUID extracted from the composite). Cryptic `EntityUserFailure` at refresh time is often a missing/inaccessible connection. See [connection-management.md](references/connection-management.md).
 - **Bootstrap-bind connections before previewing credentialed M.** A `connections[]` array in the initial create payload is **not** yet visible to `executeQuery`; persist it through at least one `updateDefinition` first. Detail: [mashup-preview.md § Bootstrap branch](references/mashup-preview.md#bootstrap-branch--new-dataflow--new-credentialed-source).
 - **Send a full `section Section1; ...` document in `customMashupDocument`** — `executeQuery` does not auto-wrap raw expressions. See [mashup-preview.md § customMashupDocument format](references/mashup-preview.md#custommashupdocument-format).
@@ -634,8 +640,9 @@ When this skill completes a task, the agent should return:
 |---|---|
 | **Verbosity** | Concise summary (3–10 lines) of what was created/modified. |
 | **Default format** | Markdown for status reports; fenced JSON code block for single-resource responses; markdown table for list responses. |
-| **Side-effect disclosure** | Explicitly report IDs created/modified/deleted and the target workspace ID. Never imply success without an ID. |
+| **Side-effect disclosure** | Explicitly report IDs created/modified/deleted and the target workspace ID. Never imply success without an ID. When you saved or replaced a dataflow definition, name the parts you wrote in prose — `mashup.pq`, `queryMetadata.json`, `.platform` — since long command bodies are truncated in the transcript and the part names would otherwise be lost. |
 | **Verification** | Re-`GET` the affected resource (dataflow, connection, job instance) and surface its state (e.g., `provisionState`, `status`, `Completed`) before declaring done. |
 | **Error surfacing** | If any step returned a non-2xx status, an LRO `Failed`/`Cancelled`, or an Arrow-stream `{"Error":"..."}`, propagate the raw error verbatim and stop. |
 | **Preview rendering (Workflow C)** | After `executeQuery`, render `head(10)` of the result as a markdown table in chat alongside the saved Arrow file — even when the embedded-error check passes. Catches silent-success bugs (filter dropped all rows, wrong column, off-by-one, wrong cast) that the embedded-error detector cannot see. Snippet + suppression rules: [dataflows-consumption-cli § Example 5b](../dataflows-consumption-cli/SKILL.md#example-5b-render-query-results-as-a-markdown-table). |
+| **API names** | When the answer references API endpoints or request-body fields, use their exact, case-sensitive names (`executeQuery`, `customMashupDocument`, `QueryName`, `mashup.pq`, `queryMetadata.json`, `GET /v1/connections/supportedConnectionTypes`) rather than paraphrased or pluralized variants. |
 

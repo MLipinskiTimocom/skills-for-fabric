@@ -10,7 +10,7 @@ Add the public marketplace:
 /plugin marketplace add microsoft/skills-for-fabric
 ```
 
-Install the full bundle:
+Install the full bundle (except `powerbi-authoring`):
 
 ```bash
 /plugin install fabric-skills@fabric-collection
@@ -27,6 +27,9 @@ Or install a focused bundle:
 
 # Operations: diagnostics and performance investigation
 /plugin install fabric-operations@fabric-collection
+
+# Power BI authoring: semantic models, Power BI report skills, and PBIP workflows
+/plugin install powerbi-authoring@fabric-collection
 ```
 
 You can also filter the full bundle by workload:
@@ -45,6 +48,7 @@ You can also filter the full bundle by workload:
 | `fabric-authoring` | Creating and managing Fabric items through REST APIs, CLI automation, notebooks, T-SQL, KQL, Dataflows Gen2, Eventstreams, and semantic models. |
 | `fabric-consumption` | Read-only exploration and query workflows across Warehouses, Lakehouses, Power BI semantic models, Eventhouse/KQL databases, Eventstreams, Dataflows Gen2, and catalog search. |
 | `fabric-operations` | Performance and health diagnostics, including warehouse query insights and slow-query investigation. |
+| `powerbi-authoring` | Authoring Power BI semantic models, reports, and PBIP workflows, including Power BI report planning, design, authoring, and management. |
 
 The full bundle includes skills for SQL data warehouse, Spark and Lakehouse, Power BI semantic models, Eventhouse and KQL, Eventstreams, Dataflows Gen2, catalog search, migration scenarios, and medallion architecture workflows.
 
@@ -78,11 +82,13 @@ SQL, Spark, Power BI, and KQL workflows may require workload-specific endpoints 
 
 Skills provide guidance and patterns. MCP servers provide live tool access to data sources and APIs. Some bundles include MCP configuration where supported, and you can register additional Fabric MCP servers if your environment provides them.
 
-See [MCP setup](mcp-setup/README.md) and the [MCP servers guide](docs/mcp-servers-guide.md).
+See [MCP setup](mcp-setup/README.md).
 
 ## Other AI coding tools
 
 GitHub Copilot CLI plugin installation is the recommended path. This repository also includes root-level configuration files for compatible AI coding tools — [CLAUDE.md](CLAUDE.md) for Claude Code, [.cursorrules](.cursorrules) for Cursor, [.windsurfrules](.windsurfrules) for Windsurf, and [AGENTS.md](AGENTS.md) for Codex / Jules / OpenCode. They are picked up automatically when the repo is cloned.
+
+Gemini CLI also auto-discovers [GEMINI.md](GEMINI.md) when the repo is cloned.
 
 ## Issues and security
 

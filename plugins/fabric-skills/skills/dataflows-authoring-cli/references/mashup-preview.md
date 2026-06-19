@@ -8,6 +8,22 @@ This file is the **canonical API reference** for `executeQuery`. End-to-end reci
 
 ---
 
+## Vocabulary -- name the things you send
+
+When you explain or use this API, surface the **exact** literal names below; do not paraphrase, abbreviate, or invent variants. The smoke tests and reviewers grep for these literals.
+
+| Literal | What it is | Where it appears |
+|---|---|---|
+| `executeQuery` (singular) | The preview endpoint path segment. **Not** `executeQueries`, **not** `ExecuteQuery`. | URL path: `.../dataflows/{dataflowId}/executeQuery` |
+| `QueryName` | Top-level request-body field naming the `shared` member to evaluate. PascalCase canonical (case-insensitive on the wire). | JSON request body |
+| `customMashupDocument` | Top-level request-body field carrying the **complete** `section Section1; ...` M document being previewed. **Not** `mashupDocument`, **not** `MashupDocument`, **not** `query`, **not** base64-encoded -- it is a plain UTF-8 string. | JSON request body |
+| `mashup.pq` | The saved part path inside the dataflow definition. The M body you pass as `customMashupDocument` during preview is the same body you base64-encode into the `mashup.pq` part when you persist via `updateDefinition`. | Definition `parts[].path` |
+| `queryMetadata.json` | The saved part holding `connections[]`, `queriesMetadata`, and `formatVersion`. | Definition `parts[].path` |
+
+**Preview-vs-save loop in one sentence**: build candidate M -> POST it as `customMashupDocument` to `executeQuery` -> inspect Arrow + render `head(10)` -> on success, base64-encode the same M into the `mashup.pq` part and POST to `updateDefinition`.
+
+---
+
 ## Endpoint
 
 ```

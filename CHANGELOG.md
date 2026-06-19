@@ -2,6 +2,25 @@
 
 User-facing changes for the public Microsoft Fabric Skills release.
 
+## [0.3.4] - 2026-06-18
+
+### Added
+- **Materialized Lake View (MLV) resources for `spark-authoring-cli`** -- two new resource documents:
+  - `resources/materialized-lake-view-patterns.md` -- MLV design guidance, layering patterns, when to use MLVs vs. plain Delta tables, and the SQL-vs-PySpark authoring tradeoff (PySpark MLVs are lineage-schedule-refresh only and don't support on-demand notebook refresh).
+  - `resources/mlv-incremental-refresh-patterns.md` -- refresh-readiness review workflow, IR-friendly syntax guide, full-refresh blocker catalog, and safe non-breaking rewrites.
+- **MLV triggers + routing in `spark-authoring-cli/SKILL.md`** -- discovery phrases (`materialized lake view`, `MLV`, `CREATE MATERIALIZED LAKE VIEW`, `MLV incremental refresh`, `review MLV for incremental refresh`, `MLV refresh policy`, `schedule MLV refresh`), resource table entries, Rule 4 MLV routing, and a quick-start SQL example.
+- **Cross-link from `e2e-medallion-architecture` PREFER section** -- points Silver/Gold layer authoring at the new MLV resources.
+- **M language semantics reference for `dataflows-authoring-cli`** — new `references/m-language.md` covering language-side pitfalls confirmed live against a Fabric Dataflow Gen2 via `executeQuery`: `try` success vs failure record shapes (`[HasError, Value]` vs `[HasError, Error[Reason, Message, Detail]]`), `try ... otherwise` short-circuit semantics, per-cell error wrapping in `Table.TransformColumnTypes` and `Table.TransformColumns` (errors stored at the cell level — Arrow renders them as `null` but reads raise), `each` scoping divergence between row contexts (`Table.SelectRows`: `_` is a row record) and sub-table contexts (`Table.Group`: `_` is the sub-table — use `_[Col]` for the column-as-list), optional field access (`r[key]?`, `Record.FieldOrDefault`), quoted-identifier escaping (`#"..."`), error-record construction, and sandbox-disabled symbols. SKILL.md References table updated.
+- **Source connector patterns for `dataflows-authoring-cli`** — new `references/connectors.md` covering the M-side source connector surface: live-verified function inventory (`Lakehouse.Contents`, `Sql.Database`, `Fabric.Warehouse`, `OData.Feed`, `Web.Contents`, `PowerPlatform.Dataflows`, `Snowflake.Databases`, `AzureStorage.DataLake`, `Excel.Workbook`, `Variable.Value`, `Html.Table`, `Csv.Document`, `Json.Document`, `Lines.FromBinary`), verified Lakehouse deep navigation (`workspaceId` → `lakehouseId` → flat-table `Name` index), `PowerPlatform.Dataflows` workspace/dataflow navigation (`{[Id="Workspaces"]}[Data]` → `workspaceId` → `dataflowName`), runtime-disabled functions (`Web.Page`, `Web.BrowserContents`), credentialed-connector argument shapes, the in-band `{"Error":"..."}` decoding contract for `executeQuery` Arrow responses, and the `[AllowCombine = true]` multi-source section attribute. Every behaviour claim was reproduced live via `executeQuery`.
+- **Gemini CLI compatibility** -- new `compatibility/GEMINI.md` (a thin `@./AGENTS.md` import) is flattened to the public repo root by the release flow, so cloning the public repo enables Gemini CLI automatically.
+
+### Changed
+- **Compatibility files** (`compatibility/CLAUDE.md`, `AGENTS.md`, `.cursorrules`, `.windsurfrules`) -- added pointers to the new MLV resources so cross-tool consumers route to the same guidance.
+- **`skills/dataflows-authoring-cli/SKILL.md`** — added a requirement to name the definition parts (`mashup.pq`, `queryMetadata.json`, `.platform`) in the written summary so they survive transcript truncation; condensed the connector-types note to keep the YAML description within the 1023-char limit.
+
+### Fixed
+- **Cross-tool config files** -- removed dead "see DEVELOPMENT-GUIDE.md at repository root" references (the file never existed) from `AGENTS.md`, `.cursorrules`, and `.windsurfrules`. `AGENTS.md` and `.windsurfrules` now inline the `az login` token steps the link was meant to provide, matching `CLAUDE.md`.
+
 ## [0.3.3] - 2026-06-07
 
 ### Added

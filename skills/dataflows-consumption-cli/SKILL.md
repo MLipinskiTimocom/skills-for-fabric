@@ -5,11 +5,12 @@ description: >
   List dataflows, decode base64 definitions (mashup.pq, queryMetadata.json,
   .platform), discover parameters, retrieve refresh status and job history,
   classify queries by staging, and execute queries against saved dataflows via
-  the read-side `executeQuery` mashup engine (Arrow IPC response). Three
-  executeQuery read modes: (a) execute a persisted query by QueryName,
-  (b) run an ad-hoc read-only customMashupDocument **with no intent to persist**,
-  (c) parse and render Arrow results. For previewing candidate M before
-  persisting via updateDefinition, use `dataflows-authoring-cli`.
+  the read-side `executeQuery` mashup engine (Arrow IPC response). Runs
+  persisted or ad-hoc read-only executeQuery requests; parses/renders Arrow
+  results. For previewing
+  candidate M before persisting, or for `supportedConnectionTypes`/`credentialType`
+  discovery and connection configuration, use `dataflows-authoring-cli`
+  (not this skill).
   Triggers: "list dataflows", "inspect dataflow", "decode dataflow definition",
   "dataflow parameters", "dataflow refresh status", "refresh history",
   "last refresh status", "dataflow job history", "execute dataflow query",

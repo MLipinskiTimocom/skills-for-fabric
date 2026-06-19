@@ -11,9 +11,6 @@ Primary API reference: https://learn.microsoft.com/en-us/rest/api/fabric/article
 - For medallion and other cross-endpoint workflows, start with `agents/FabricDataEngineer.agent.md`.
 - Delegate endpoint-specific tasks to corresponding skills in `skills/`.
 
-## Development Guide
-For authentication and deployment patterns, see **DEVELOPMENT-GUIDE.md** at repository root.
-
 ## Authentication
 All operations require Azure AD tokens via `az login`:
 ```bash
@@ -35,6 +32,8 @@ Developers use REST APIs to manage artifacts, then protocol-specific connections
 - Use mssparkutils for Fabric-specific operations (fs, credentials, notebook)
 - Include partition columns for large tables
 - Run OPTIMIZE and VACUUM for table maintenance
+- For Materialized Lake View authoring and incremental refresh review, use `skills/spark-authoring-cli/SKILL.md`.
+- Resource docs: `skills/spark-authoring-cli/resources/materialized-lake-view-patterns.md` and `skills/spark-authoring-cli/resources/mlv-incremental-refresh-patterns.md`.
 
 ### Warehouse (T-SQL)
 - Check T-SQL surface area - not all SQL Server features are supported
@@ -90,6 +89,7 @@ Developers use REST APIs to manage artifacts, then protocol-specific connections
 ### Power BI / FabricIQ
 - Consumption skill: `skills/semantic-model-consumption/SKILL.md` — raw DAX queries via MCP ExecuteQuery
 - FabricIQ skill: `skills/fabriciq/SKILL.md` — multi-step Power BI analysis (discover, inspect, resolve, generate, execute)
+- ⚠️ **MANDATORY**: Before calling any FabricIQ MCP tool, read `skills/fabriciq/SKILL.md` in full (see [`agents/FabricIQ.agent.md` § Pre-Flight](../agents/FabricIQ.agent.md#pre-flight--mandatory-skill-reading)).
 
 ### Catalog Search (Item Discovery)
 - Use `POST /v1/catalog/search` to find items across workspaces by name, description, or workspace name

@@ -1,6 +1,6 @@
 # Copilot Instructions for skills-for-fabric Repository
 
-This repository contains AI coding assistant skills for Microsoft Fabric. When working in this repository, follow these guidelines.
+This repository contains AI coding assistant skills for Microsoft Fabric.
 
 ## Repository Structure
 
@@ -63,6 +63,11 @@ Target users who interact via CLI/AI: run queries, explore data, ad-hoc operatio
 ### Operations (`-operations-` skills)
 Target users diagnosing performance and health: system view queries, multi-step investigation workflows, threshold-based recommendations.
 
+
+## Testing Requirements for New Skills
+
+Vally is the required PR and nightly harness for new or changed skill behavior. Add or update `tests/evals/<skill>/eval.yaml`; use `tests/evals/README.md` as the canonical guide. Start with Layer 0 coverage (`skill-invocation`, `completed`, crash-pattern rejection, one output assertion, and budget graders). Legacy smoke (`tests/tests.json` and `tests/run-smoke-tests.ps1`) is frozen for manual-only break-glass and should not receive new stims.
+
 ## Cross-Tool Compatibility
 
 When modifying skills, ensure compatibility files in `compatibility/` are updated:
@@ -70,3 +75,4 @@ When modifying skills, ensure compatibility files in `compatibility/` are update
 - `.cursorrules` for Cursor
 - `AGENTS.md` for Codex/Jules/OpenCode
 - `.windsurfrules` for Windsurf
+- `GEMINI.md` for Gemini CLI (imports `@./AGENTS.md`; no separate edits)

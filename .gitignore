@@ -46,3 +46,12 @@ vally-results/
 # Vally eval staging -- substituted {{WORKSPACE}} copies for real runs (never commit)
 tests/.vally-staging/
 tests/.vally-baseline-skill-root/
+tests/.test-scratch/
+
+# weekly-status-pptx skill -- generated decks and per-week generator copies should
+# not be committed (use a gitignored working folder like .local/weekly/)
+.local/
+*.pptx
+Fabric-Skills-Weekly-*.pptx
+generate-weekly-*.py
+!.github/skills/weekly-status-pptx/generate-weekly-summary.py
