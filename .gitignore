@@ -50,3 +50,4 @@ tests/.test-scratch/
 Fabric-Skills-Weekly-*.pptx
 generate-weekly-*.py
 !.github/skills/weekly-status-pptx/generate-weekly-summary.py
+config.json
