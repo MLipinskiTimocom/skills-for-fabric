@@ -41,18 +41,21 @@ Nodes reference their inputs via `inputNodes: [{"name": "<upstream-node-name>"}]
 
 ### Source Type Catalog (API-Supported)
 
-25 source types are available via the REST API `type` enum (per the official `microsoft/fabric-event-streams` template):
+29 source types are available via the REST API `type` enum (per the official `microsoft/fabric-event-streams` template, verified 2026-07):
 
 | Category | Type Enum | Description | Key Properties |
 |----------|-----------|-------------|----------------|
 | **Azure Messaging** | `AzureEventHub` | Azure Event Hubs — high-volume event ingestion | `dataConnectionId`, `consumerGroupName`, `inputSerialization` |
+| | `AzureEventHubExtended` | Azure Event Hubs with additional start-position controls | `dataConnectionId`, `consumerGroupName`, `startPosition` (canonical template shows `Earliest`; consult Learn for other supported values) |
 | | `AzureIoTHub` | Azure IoT Hub — device telemetry | `dataConnectionId`, `consumerGroupName`, `inputSerialization` |
-| **Change Data Capture** | `AzureSQLDBCDC` | Azure SQL Database CDC | `dataConnectionId`, `tableName` |
-| | `AzureSQLMIDBCDC` | Azure SQL Managed Instance CDC | `dataConnectionId`, `tableName` |
+| | `AzureServiceBus` | Azure Service Bus (Topic or Queue) | `dataConnectionId`, `serviceBusType` (`Topic`/`Queue`), `topicOrQueueName`, `subscriptionName` (Topic mode only) |
+| **Change Data Capture** | `AzureSQLDBCDC` | Azure SQL Database CDC | `dataConnectionId`, `tableName`, `decimalHandlingMode` |
+| | `AzureSQLMIDBCDC` | Azure SQL Managed Instance CDC | `dataConnectionId`, `tableName`, `decimalHandlingMode` |
 | | `AzureCosmosDBCDC` | Azure Cosmos DB CDC | `dataConnectionId`, `containerName`, `databaseName`, `offsetPolicy` |
-| | `MySQLCDC` | MySQL database CDC | `dataConnectionId`, `tableName`, `serverId`, `port` |
-| | `PostgreSQLCDC` | PostgreSQL database CDC | `dataConnectionId`, `tableName`, `slotName`, `port` |
-| | `SQLServerOnVMDBCDC` | SQL Server on VM CDC | `dataConnectionId`, `tableName` |
+| | `MongoDBCDC` | MongoDB CDC (self-hosted or Atlas) | `dataConnectionId`, `includedDatabases`, `includedCollections`, `snapshotMode` |
+| | `MySQLCDC` | MySQL database CDC | `dataConnectionId`, `tableName`, `serverId`, `port`, `decimalHandlingMode`, `snapshotLockingMode` |
+| | `PostgreSQLCDC` | PostgreSQL database CDC | `dataConnectionId`, `tableName`, `slotName`, `port`, `decimalHandlingMode`, `publicationName`, `publicationAutoCreateMode` |
+| | `SQLServerOnVMDBCDC` | SQL Server on VM CDC | `dataConnectionId`, `tableName`, `decimalHandlingMode` |
 | **Cloud Streaming** | `ApacheKafka` | Apache Kafka (self-hosted) | `dataConnectionId`, `topic`, `consumerGroupName`, `autoOffsetReset`, `saslMechanism`, `securityProtocol` |
 | | `ConfluentCloud` | Confluent Cloud for Apache Kafka | `dataConnectionId`, `topic`, `consumerGroupName`, `autoOffsetReset` |
 | | `AmazonKinesis` | Amazon Kinesis Data Streams | `dataConnectionId`, `region`, `startPosition`, `startTimestamp` |
@@ -60,16 +63,19 @@ Nodes reference their inputs via `inputNodes: [{"name": "<upstream-node-name>"}]
 | | `GooglePubSub` | Google Cloud Pub/Sub | `dataConnectionId` |
 | **Azure Services** | `AzureEventGridNamespace` | Azure Event Grid Namespace | `namespaceResourceId`, `topic` |
 | | `AzureDataExplorer` | Azure Data Explorer (Kusto) | `dataConnectionId`, `databaseName`, `tableNames` |
+| | `AzureBlobStorageEvents` | Azure Blob Storage change events (multiple storage accounts per source) | `azureBlobStorageEvents[]` (each with `id`, `azureResourceId`, `includedEventTypes[]`), `streamEvents` |
 | **IoT / Messaging** | `Mqtt` | MQTT broker | `dataConnectionId`, `serverVersion`, `topic` |
 | | `SolacePubSub` | Solace PubSub+ broker | `dataConnectionId`, `pubSubType`, `messageVpnName`, `topics`, `queue`, `mapUserProperties`, `mapSolaceProperties` |
 | | `RealTimeWeather` | Live weather for a GPS coordinate (Azure Maps, updated every minute, no extra Azure subscription needed) | `latitude` (float), `longitude` (float) |
-| **Custom** | `CustomEndpoint` | Custom app or Kafka client via connection string | (empty — connection-string based) |
+| **HTTP / Polling** | `Http` | HTTP polling source — periodically fetches from an HTTP endpoint | `dataConnectionId`, `method`, `requestHeaders[]`, `requestParameters[]`, `requestBody`, `pollIntervalMs`, `maxRetries`, `retryBackoffMs`, `retriableHttpStatusCodes` |
+| **Custom** | `CustomEndpoint` | Custom app or Kafka client via connection string. Also the documented pattern for **Azure IoT Operations** ingestion (Learn overview) — no dedicated `AzureIoTOperations` type is present in the canonical template | (empty — connection-string based) |
 | **Sample** | `SampleData` | Built-in sample data generators | `type`: one of `Bicycles`, `YellowTaxi`, `StockMarket`, `Buses`, `SP500Stocks`, `SemanticModelLogs` |
-| **Fabric System Events** | `FabricWorkspaceItemEvents` | Workspace item create/update/delete events | `eventScope`, `workspaceId`, `includedEventTypes[]`, `filters[]` |
+| **Fabric System Events** | `FabricCapacityOverviewEvents` | Fabric capacity state / summary events | `eventScope` (`Capacity`), `capacityId`, `includedEventTypes[]` (`Microsoft.Fabric.Capacity.State`, `Microsoft.Fabric.Capacity.Summary`), `filters[]` |
+| | `FabricWorkspaceItemEvents` | Workspace item create/update/delete events | `eventScope`, `workspaceId`, `includedEventTypes[]`, `filters[]` |
 | | `FabricJobEvents` | Fabric job lifecycle events | `eventScope`, `workspaceId`, `itemId`, `includedEventTypes[]`, `filters[]` |
 | | `FabricOneLakeEvents` | OneLake file/folder change events | `tenantId`, `workspaceId`, `itemId`, `oneLakePaths[]`, `includedEventTypes[]`, `filters[]` |
 
-> **Note**: `AzureBlobStorageEvents` and `FabricCapacityUtilizationEvents` appear in Microsoft Learn docs but are not included in the official API template. They may be valid but should be tested before use.
+> **Note**: The current canonical template uses `FabricCapacityOverviewEvents`; older Learn revisions referenced `FabricCapacityUtilizationEvents` (which was not present in the earlier template — see previous audit notes). If your CI/CD templates or stored definitions still reference the older name, update them to `FabricCapacityOverviewEvents` before their next redeploy. `AzureServiceBus`, `Http`, `MongoDBCDC`, `AzureEventHubExtended`, and `AzureBlobStorageEvents` are five newly template-supported types (2026-07 quarterly audit); `FabricCapacityOverviewEvents` is the currently template-supported capacity-events type.
 
 ### Source Node Schema
 
@@ -95,7 +101,7 @@ Nodes reference their inputs via `inputNodes: [{"name": "<upstream-node-name>"}]
 
 ### Sources Not in Official API Template
 
-6 additional sources are available in the Fabric UI but are not present in the official `eventstream-definition.json` template: Azure Service Bus, Anomaly Detection, HTTP, MongoDB CDC, Cribl, Azure IoT Operations.
+5 sources remain available in the Fabric UI but are not present in the official `eventstream-definition.json` template: **Anomaly Detection**, **Cribl**, **Azure IoT Operations** (typically wired via the `CustomEndpoint` source pattern per Learn overview), **Oracle Database CDC** (preview), and **Mirrored Database Change Feed** (preview).
 
 ---
 
@@ -625,6 +631,8 @@ These topology and SQL patterns **will fail** — avoid them:
 | `Activator` | Fabric Activator (Reflex) triggers | `workspaceId`, `itemId` |
 | `CustomEndpoint` | External app / Kafka client | Connection-string based |
 
+> **UI-only destinations (2026-07)**: The **Spark Notebook** destination (Preview) is currently configurable only via the Fabric portal — it is not present in the official `eventstream-definition.json` template and has no documented REST `typeProperties` schema. As an alternative pattern for API-driven pipelines, route to a `CustomEndpoint` destination and consume its Kafka endpoint from a Spark Structured Streaming reader; validate against your latency and delivery-guarantee requirements before adopting.
+
 ### Destination Node Schema
 
 ```json
@@ -674,7 +682,7 @@ Use this mode when deploying Eventstream→Eventhouse pipelines via REST API, CL
 }
 ```
 
-**Pre-requisites (can be automated via `eventhouse-authoring-cli`):**
+**Pre-requisites (can be automated via `eventhouse-cli`):**
 1. *(Recommended)* KQL table pre-created with explicit schema (`.create table`) — avoids schema-inference surprises
 2. Streaming ingestion policy enabled (`.alter table T policy streamingingestion enable`)
 
@@ -693,7 +701,7 @@ Use this mode only when sub-second ingestion latency is critical AND the data co
 
 **Pre-requisites:**
 1. KQL table exists with compatible schema
-2. JSON ingestion mapping created (via `eventhouse-authoring-cli`): `.create table T ingestion json mapping "MappingName" '[...]'`
+2. JSON ingestion mapping created (via `eventhouse-cli`): `.create table T ingestion json mapping "MappingName" '[...]'`
 3. Streaming ingestion policy enabled
 4. **Data stream connection created via Eventhouse UI** (not automatable via API)
 
@@ -707,9 +715,9 @@ For the recommended ProcessedIngestion path, use skills in sequence:
 
 | Step | Skill | Command |
 |------|-------|---------|
-| 1. Create KQL table | `eventhouse-authoring-cli` | `.create table StocksRaw (Date:datetime, Open:real, ...)` |
-| 2. Enable streaming | `eventhouse-authoring-cli` | `.alter table StocksRaw policy streamingingestion enable` |
-| 3. Deploy Eventstream | `eventstream-authoring-cli` | Deploy topology with ProcessedIngestion destination |
+| 1. Create KQL table | `eventhouse-cli` authoring mode | `.create table StocksRaw (Date:datetime, Open:real, ...)` |
+| 2. Enable streaming | `eventhouse-cli` authoring mode | `.alter table StocksRaw policy streamingingestion enable` |
+| 3. Deploy Eventstream | `eventstream-cli` authoring mode | Deploy topology with ProcessedIngestion destination |
 
 ### Lakehouse Destination Example
 
@@ -787,9 +795,12 @@ DerivedStream requires `inputSerialization` in properties:
 
 | Operation | Method | Endpoint |
 |-----------|--------|----------|
-| Get Definition | GET | `/v1/workspaces/{workspaceId}/eventstreams/{eventstreamId}/definition` |
-| Update Definition | PUT | `/v1/workspaces/{workspaceId}/eventstreams/{eventstreamId}/definition` |
+| Get Definition | POST | `/v1/workspaces/{workspaceId}/eventstreams/{eventstreamId}/getDefinition` |
+| Update Definition | POST | `/v1/workspaces/{workspaceId}/eventstreams/{eventstreamId}/updateDefinition` |
 | Create with Definition | POST | `/v1/workspaces/{workspaceId}/items` (type: `Eventstream`) |
+
+Get and update definition operations can return `202 Accepted`; poll the
+`Location` header until the long-running operation completes.
 
 ### Topology API Endpoints
 
@@ -803,11 +814,11 @@ The Topology API provides runtime inspection, connection retrieval, and operatio
 | Get Source Connection | GET | `.../eventstreams/{id}/sources/{sourceId}/connection` | ReadWrite |
 | Get Dest Connection | GET | `.../eventstreams/{id}/destinations/{destId}/connection` | ReadWrite |
 | Pause Eventstream | POST | `.../eventstreams/{id}/pause` | ReadWrite |
-| Pause Source | POST | `.../eventstreams/{id}/pause/sources/{sourceId}` | ReadWrite |
-| Pause Destination | POST | `.../eventstreams/{id}/pause/destinations/{destId}` | ReadWrite |
+| Pause Source | POST | `.../eventstreams/{id}/sources/{sourceId}/pause` | ReadWrite |
+| Pause Destination | POST | `.../eventstreams/{id}/destinations/{destId}/pause` | ReadWrite |
 | Resume Eventstream | POST | `.../eventstreams/{id}/resume` | ReadWrite |
-| Resume Source | POST | `.../eventstreams/{id}/resume/sources/{sourceId}` | ReadWrite |
-| Resume Destination | POST | `.../eventstreams/{id}/resume/destinations/{destId}` | ReadWrite |
+| Resume Source | POST | `.../eventstreams/{id}/sources/{sourceId}/resume` | ReadWrite |
+| Resume Destination | POST | `.../eventstreams/{id}/destinations/{destId}/resume` | ReadWrite |
 
 > All paths are prefixed with `/v1/workspaces/{workspaceId}`. Read scope = `Eventstream.Read.All`; ReadWrite scope = `Eventstream.ReadWrite.All`.
 
@@ -849,14 +860,28 @@ Response:
 
 ### Pause and Resume
 
-Use pause/resume for operational control without deleting the topology:
+Use pause/resume for operational control without deleting the topology. Pause is
+bodyless:
 
 ```text
 POST /v1/workspaces/{workspaceId}/eventstreams/{eventstreamId}/pause
-POST /v1/workspaces/{workspaceId}/eventstreams/{eventstreamId}/resume
 ```
 
-Granular control is also available per source or destination (see table above).
+Resume requires a JSON request body:
+
+```http
+POST /v1/workspaces/{workspaceId}/eventstreams/{eventstreamId}/resume
+Content-Type: application/json
+
+{
+  "startType": "WhenLastStopped"
+}
+```
+
+Supported `startType` values are `Now`, `WhenLastStopped`, and `CustomTime`.
+`CustomTime` also requires `customStartDateTime` in UTC. Granular control is
+available per source or destination (see the correctly ordered paths above);
+node-level resume requests require the same body.
 
 ### Create Eventstream (Simple)
 
@@ -930,7 +955,7 @@ The `eventstream.json` object includes `"compatibilityLevel": "1.0"` (or `"1.1"`
 | 5 | Source with cloud connection fails | Identity lacks connection access | Grant the calling identity (user or SPN) access to the cloud connection |
 | 6 | Eventhouse DirectIngestion fails | `connectionName` references a Fabric-managed data stream connection that can only be created via UI. Deploying with `connectionName: null` leaves destination in permanent error. | **Prefer `ProcessedIngestion` mode for API automation** (no data connection needed). If DirectIngestion is required, create the data connection via Eventhouse UI first, then reference its name. See *Eventhouse Ingestion Modes* section. |
 | 7 | Update Definition returns `202 Accepted` | Long-running operation | Poll the `Location` header URL until completion |
-| 8 | Some sources not in official API template | `AzureBlobStorageEvents`, `FabricCapacityUtilizationEvents` in Learn docs but not in template | Test before using; may require specific API version |
+| 8 | `FabricCapacityUtilizationEvents` is not in the current template | The current canonical template does not include `FabricCapacityUtilizationEvents`; the template-supported capacity-events type is `FabricCapacityOverviewEvents`. CI/CD templates or stored definitions that still reference the older name must be updated before their next redeploy. `AzureBlobStorageEvents`, previously flagged as "Learn-only," is now template-supported. | Replace `type: "FabricCapacityUtilizationEvents"` with `type: "FabricCapacityOverviewEvents"` in `eventstream.json` and submit an Update Definition. `AzureBlobStorageEvents` may now be used per the canonical template. |
 | 9 | `429 Too Many Requests` | API throttling | Implement exponential backoff; respect `Retry-After` header |
 | 10 | DerivedStream not visible in Real-Time Hub | Missing `inputSerialization` | Add `inputSerialization` to the DerivedStream properties |
 | 11 | Destination tables are created on first data arrival | Destination tables (e.g., Lakehouse Delta tables, Eventhouse KQL tables) are not created until data actually flows through the pipeline | After deploying, allow time for the first events to arrive before querying destinations; the tables appear automatically once data flows |

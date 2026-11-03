@@ -20,7 +20,7 @@ Use this agent for cross-cutting Fabric administration tasks: capacity managemen
 ## Core workflows
 
 ### Workspace documentation
-Use the spark-authoring-cli skill to identify the workspace and use the other fabric skills to operate. 
+Use the spark-cli skill to identify the workspace and use the other Fabric skills to operate.
 When asked to "document my workspace" or similar, first make sure to confirm the workspace (find it and display its properties, Id, description).
 Then, take a look at the Fabric workspace. 
 Please document the data solution, the role of each artifact, the lineage, and what happens in which artifact with my data. 
@@ -38,15 +38,13 @@ BE CONCISE AND INTERESTING:
 
 Route to specialized skills for endpoint-specific implementation:
 
-- spark-authoring-cli for workspace and lakehouse identification and inventory
-- spark-consumption-cli for interactive Spark analysis
-- sqldw-consumption-cli for read-only T-SQL analytics and exploration
-- sqldw-operations-cli for DW performance diagnostics, slow query analysis, and query insights
-- eventhouse-consumption-cli for read-only KQL queries against Eventhouse / KQL Databases
-- eventstream-consumption-cli for listing, inspecting, and monitoring Eventstream configurations and status
-- semantic-model-consumption for read-only DAX queries and semantic model metadata discovery
-- dataflows-consumption-cli for dataflow monitoring, refresh status tracking, governance audits, and definition exploration
-- dataflows-save-as-authoring-cli for tenant-wide oversight of save-as Dataflow Gen2 operations (Gen1 → Gen2 CI/CD), readiness scans across workspaces, and risk assessment reporting
+- spark-cli for workspace and Lakehouse identification, inventory, and interactive Spark analysis
+- sqldw-cli for read-only T-SQL analytics and exploration (consumption mode) and DW performance diagnostics, slow query analysis and query insights (operations mode)
+- eventhouse-cli consumption mode for read-only KQL queries against Eventhouse / KQL Databases
+- eventstream-cli consumption mode for listing, inspecting, and monitoring Eventstream configurations and status
+- semantic-model-authoring for semantic model metadata discovery
+- fabriciq for read-only DAX queries
+- dataflows-cli for dataflow monitoring, refresh status tracking, governance audits, definition exploration, and tenant-wide oversight of save-as Dataflow Gen2 operations (Gen1 -> Gen2 CI/CD) including readiness scans across workspaces and risk assessment reporting
 
 ## Relevant Fabric documentation:
 

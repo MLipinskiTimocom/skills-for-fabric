@@ -1,22 +1,11 @@
 ---
 name: search-consumption-cli
-description: >
-  Search the Microsoft Fabric catalog to find an item by name across all workspaces
-  when you don't know which workspace it is in, using the Fabric Catalog Search API.
-  Use when the user wants to: (1) search the catalog for an item by name across workspaces,
-  (2) discover or list items of a specific type across the tenant,
-  (3) identify which workspace contains an item,
-  (4) return item/workspace IDs for downstream API calls.
-  Triggers: "search for an item", "search the catalog", "catalog search",
-  "search Fabric for an item", "search for item", "find an item by name across workspaces",
-  "which workspace has", "discover items across the tenant".
+description: "Finds Fabric items across every workspace with the Catalog Search API when the workspace is unknown, locating an item by display name, inventorying one item type tenant-wide, and returning the workspace and item IDs later calls need. Dataflow Gen1 and Gen2 items are not supported. Use only to locate items; once found, query them with the owning item skill such as sqldw-cli, spark-cli, eventhouse-cli or fabriciq."
 ---
 
-> **Update Check — ONCE PER SESSION (mandatory)**
-> The first time this skill is used in a session, run the **check-updates** skill before proceeding.
-> - **GitHub Copilot CLI / VS Code**: invoke the `check-updates` skill (e.g., `/fabric-skills:check-updates`).
-> - **Claude Code / Cowork / Cursor / Windsurf / Codex**: read the local `package.json` version, then compare it against the remote version via `git fetch origin main --quiet && git show origin/main:package.json` (or the GitHub API). If the remote version is newer, show the changelog and update instructions.
-> - Skip if the check was already performed earlier in this session.
+> **Telemetry — MANDATORY.** Every `api.fabric.microsoft.com` call must carry
+> `x-ms-fabric-skill: search-consumption-cli` (`az rest`: `--headers "x-ms-fabric-skill=search-consumption-cli"`),
+> including every LRO poll, `fabric_lro` and retry. Snippets omit it — add it anyway.
 
 > **CRITICAL NOTES**
 > 1. The Catalog Search API finds **items**, not workspaces. To find a workspace by name, use `GET /v1/workspaces` (see [COMMON-CLI.md § Resolve Workspace Properties by Name](../../common/COMMON-CLI.md#resolve-workspace-properties-by-name)).
@@ -61,6 +50,7 @@ description: >
 ### AVOID
 
 - **Searching for workspaces** — the Catalog Search API returns items, not workspaces. Use `GET /v1/workspaces` instead (see [COMMON-CLI.md § Resolve Workspace Properties by Name](../../common/COMMON-CLI.md#resolve-workspace-properties-by-name)).
+- **Querying source data after the workspace/item is known** — route to the workload-specific consumption skill (`sqldw-cli`, `spark-cli`, `eventhouse-cli`, or `fabriciq`) instead of Catalog Search.
 - **Inventing filter syntax** — only `eq`, `ne`, `or`, and parentheses are supported.
 - **Assuming all item types are supported** — Dataflow (Gen1) and Dataflow (Gen2) are not returned yet.
 

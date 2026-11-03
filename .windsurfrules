@@ -1,10 +1,8 @@
 # Microsoft Fabric Development Rules for Windsurf
 
-# Update Check: At session start, check for skills-for-fabric updates by reading the
-# remote package.json version from https://github.com/microsoft/skills-for-fabric
-# (via "git fetch origin main --quiet && git show origin/main:package.json"
-# or GitHub API with authentication) and comparing with the local package.json
-# version. Show changelog if update available.
+# Updates: These instructions do not run a session-start update check. Refresh them
+# through your host's plugin or marketplace update flow, or run "git pull" if you use
+# a manual clone.
 
 project_context: |
   This project uses Microsoft Fabric for data engineering, warehousing, and analytics.
@@ -49,53 +47,68 @@ rules:
     pattern: ".create-merge table"
 
   - name: kql_skills
-    description: Authoring skill is eventhouse-authoring-cli, consumption skill is eventhouse-consumption-cli
-    reference: skills/eventhouse-authoring-cli/SKILL.md
+    description: Use eventhouse-cli authoring mode for writes and consumption mode for read-only KQL
+    reference: skills/eventhouse-cli/SKILL.md
 
-  - name: spark_operations
-    description: Use spark-operations-cli for read-only Spark job diagnosis, session health, and performance triage
-    reference: skills/spark-operations-cli/SKILL.md
+  - name: spark
+    description: Use spark-cli for notebook authoring and runs, Livy analysis, Spark diagnostics, and the full Materialized Lake View lifecycle
+    reference: skills/spark-cli/SKILL.md
 
-  - name: spark_mlv_patterns
-    description: Use spark-authoring-cli for Materialized Lake View authoring and incremental refresh guidance
-    reference: skills/spark-authoring-cli/SKILL.md
-
-  - name: mlv_operations
-    description: Use mlv-operations-cli for MLV refresh scheduling, job monitoring, and cancellation
-    reference: skills/mlv-operations-cli/SKILL.md
+  - name: azmon_operations
+    description: Use azmon-mirroredcatalogs-operations-cli to onboard Azure Monitor / App Insights / Log Analytics observability data into Fabric and correlate telemetry with business data for business-impact insights, an optional Real-Time (KQL) dashboard, and opt-in Operations Agent instructions
+    reference: skills/azmon-mirroredcatalogs-operations-cli/SKILL.md
 
   # Dataflows Gen2 (Data Integration)
   - name: dataflows_skills
-    description: Authoring skill is dataflows-authoring-cli, consumption skill is dataflows-consumption-cli
-    reference: skills/dataflows-authoring-cli/SKILL.md
+    description: One dataflows-cli skill; authoring and consumption are modes
+    reference: skills/dataflows-cli/SKILL.md
 
   - name: eventstream_skills
-    description: Authoring skill is eventstream-authoring-cli, consumption skill is eventstream-consumption-cli
-    reference: skills/eventstream-authoring-cli/SKILL.md
+    description: One eventstream-cli skill; authoring and consumption are modes
+    reference: skills/eventstream-cli/SKILL.md
+
+  # Deployment Pipelines (ALM / CI-CD)
+  - name: deployment_pipelines_skills
+    description: Use deployment-pipelines-authoring-cli to create Fabric deployment pipelines and stages, assign workspaces, and deploy stage content (LRO) across dev/test/prod
+    reference: skills/deployment-pipelines-authoring-cli/SKILL.md
+
+  - name: eventschemaset_skills
+    description: Use eventschemaset-cli authoring mode to create/update/delete Event Schema Sets and their definitions, and consumption mode for read-only Event Schema Set discovery, inspection, and definition decoding
+    reference: skills/eventschemaset-cli/SKILL.md
 
   - name: activator_skills
-    description: Authoring skill is activator-authoring-cli, consumption skill is activator-consumption-cli
-    reference: skills/activator-authoring-cli/SKILL.md
+    description: One activator-cli skill; authoring and consumption are modes. Power BI sources require exact pbiMetrics, powerBiSource-v1, a JSON-string source query, and a matching DatasetMetric. When another data workflow surfaces a timely operational signal, proactively ask whether the user wants an Activator alert for future occurrences.
+    reference: skills/activator-cli/SKILL.md
+
+  - name: cost_estimation
+    description: Use e2e-fabric-cost-estimation for Fabric capacity cost estimation, SKU sizing, and billing strategy
+    reference: skills/e2e-fabric-cost-estimation/SKILL.md
 
   - name: fabriciq_skills
     description: >
-      Consumption skill is semantic-model-consumption (raw DAX), FabricIQ skill
-      is fabriciq (multi-step Power BI analysis). MANDATORY: read
+      Consumption skill is FabricIQ skill (multi-step Power BI analysis). MANDATORY: read
       skills/fabriciq/SKILL.md in full before calling any FabricIQ MCP tool
       (see agents/FabricIQ.agent.md#pre-flight--mandatory-skill-reading).
     reference: skills/fabriciq/SKILL.md
 
-  - name: ontology_authoring
-    description: Fabric IQ Ontology (preview) — authoring skill
-    reference: skills/fabriciq-ontology-authoring-cli/SKILL.md
+  - name: ontology
+    description: Fabric IQ Ontology (preview) — authoring and consumption modes
+    reference: skills/fabriciq-ontology-cli/SKILL.md
 
-  - name: ontology_consumption
-    description: Fabric IQ Ontology (preview) — consumption / read-only skill
-    reference: skills/fabriciq-ontology-consumption-cli/SKILL.md
+  - name: variable_library_authoring
+    description: >
+      Fabric Variable Library (CI/CD) — parameterize workspaces across
+      environments. Authoring skill for definitions, value sets, active value
+      set item state, and VL-side consumer wiring via the item-definition REST API.
+    reference: skills/variable-library-cli/SKILL.md
 
   - name: catalog_search
     description: Use POST /v1/catalog/search to find items across workspaces by name, description, or type
     reference: skills/search-consumption-cli/SKILL.md
+
+  - name: onelake_catalog_governance
+    description: Audit and remediate OneLake catalog governance through permission-aware admin and data-owner modes
+    reference: skills/onelake-catalog-govern-cli/SKILL.md
 
   - name: powerbi_report_planning
     description: Plan and gather requirements before authoring PBIR — use for "build a new dashboard" intents
@@ -115,9 +128,19 @@ rules:
 
   # Warehouse Operations
   - name: sqldw_skills
-    description: Authoring skill is sqldw-authoring-cli, consumption skill is sqldw-consumption-cli, operations skill is sqldw-operations-cli
-    reference: skills/sqldw-operations-cli/SKILL.md
-    
+    description: One skill, sqldw-cli, with authoring, consumption and operations modes
+    reference: skills/sqldw-cli/SKILL.md
+
+  # SQL Database (in Fabric) Operations
+  - name: sqldb_skills
+    description: sqldb-cli is one skill with three modes - authoring, consumption and operations
+    reference: skills/sqldb-cli/SKILL.md
+
+  # Git Integration (ALM / CI-CD)
+  - name: git_integration_operations_skill
+    description: Use git-integration-operations-cli to automate the Fabric Git integration lifecycle from CLI (connect to Azure DevOps/GitHub, commit, update/pull, sync status, resolve conflicts, disconnect, service-principal sync) via fab api with az rest fallback
+    reference: skills/git-integration-operations-cli/SKILL.md
+
   # Security
   - name: no_hardcoded_secrets
     description: Never hardcode credentials - use Key Vault or environment variables
@@ -132,7 +155,7 @@ rules:
 
   # Semantic Model skills (Power BI)
   - name: semantic_model_skills
-    description: Authoring skill is semantic-model-authoring, consumption skill is semantic-model-consumption
+    description: Authoring skill is semantic-model-authoring, consumption skill is fabriciq
     reference: skills/semantic-model-authoring/SKILL.md
 
 best_practices:

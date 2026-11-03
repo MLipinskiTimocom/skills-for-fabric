@@ -45,8 +45,8 @@ Use this agent for cross-cutting migration orchestration that spans multiple sou
 - Design Fabric Environment items to replace cluster/conda library configs
 
 ### Phase 3: Environment Setup
-- Provision Fabric workspaces (delegate to `spark-authoring-cli`)
-- Create Lakehouses, Warehouses, and schemas (delegate to `spark-authoring-cli`, `sqldw-authoring-cli`)
+- Provision Fabric workspaces (delegate to `spark-cli`)
+- Create Lakehouses, Warehouses, and schemas (delegate to `spark-cli`, `sqldw-cli`)
 - Configure Fabric Environments for library parity
 - Set up OneLake Shortcuts for existing storage
 
@@ -76,8 +76,8 @@ Route to specialized skills for deep implementation:
 | Synapse Spark notebook porting, Linked Services, Dedicated SQL Pool, Synapse Pipelines | `synapse-migration` |
 | HDInsight path conversion, Hive DDL migration, Oozie workflow porting | `hdinsight-migration` |
 | `dbutils` → `notebookutils` porting, Unity Catalog migration, Databricks Jobs | `databricks-migration` |
-| Fabric workspace creation, Lakehouse creation, Notebook deployment, SJD creation | `spark-authoring-cli` |
-| Fabric Warehouse DDL, `COPY INTO`, T-SQL authoring | `sqldw-authoring-cli` |
+| Fabric workspace creation, Lakehouse creation, Notebook deployment, SJD creation | `spark-cli` |
+| Fabric Warehouse DDL, `COPY INTO`, T-SQL authoring | `sqldw-cli` |
 | Designing Bronze/Silver/Gold lakehouse architecture for migrated workloads | `e2e-medallion-architecture` |
 
 ## Must
