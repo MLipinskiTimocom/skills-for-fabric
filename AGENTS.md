@@ -58,6 +58,7 @@ Fabric REST APIs: https://learn.microsoft.com/en-us/rest/api/fabric/articles/
 - Use Medallion architecture: Bronze (raw) → Silver (cleaned) → Gold (aggregated)
 - Lakehouse for data engineering, Warehouse for SQL analytics
 - Delta Lake format for all Lakehouse tables
+- Use `skills/project-osmos/SKILL.md` when a local agent should carry a complex Lakehouse, OneLake, notebook, or Spark outcome end to end. In Copilot for Microsoft Fabric, it returns the current availability guidance instead of calling Project Osmos.
 - Use `skills/spark-cli/SKILL.md` for notebook authoring and runs, Livy analysis, Spark diagnostics, and the full Materialized Lake View lifecycle.
 
 ### Development
@@ -68,12 +69,10 @@ Fabric REST APIs: https://learn.microsoft.com/en-us/rest/api/fabric/articles/
 - Power Query M for Dataflows Gen2 transformations (see the `dataflows-cli` skill)
 - Eventstream for real-time event ingestion (graph-based topology with sources, operators, destinations); use `skills/eventstream-cli/SKILL.md` and select its authoring or consumption mode by intent
 - Activator for Reflex alerts, notifications, and automated actions over Fabric events and data, including Power BI-backed metrics
+- Synapse Dedicated SQL Pool-to-Warehouse migrations use `skills/synapse-migration/SKILL.md`: run source Dedicated Pool SQL with `sqlcmd` and target Fabric Warehouse SQL with the Fabric SQL Endpoint MCP `execute_query` tool. Use `sqldw-cli` for standalone Warehouse work outside that migration.
 - DAX for Semantic Model measures
 - Semantic model development (see `semantic-model-authoring`)
-- Power BI report planning skill: `skills/powerbi-report-planning/SKILL.md` — requirements, page plan, approval gate
-- Power BI report design skill: `skills/powerbi-report-design/SKILL.md` — archetype routing, layout, theme, accessibility
-- Power BI report authoring skill: `skills/powerbi-report-authoring/SKILL.md` — PBIR/PBIP file mechanics, Desktop reload/screenshot
-- Power BI report management skill: `skills/powerbi-report-management/SKILL.md` — Fabric report item CRUD via `az rest`
+- Power BI report skill: `skills/powerbi-report-cli/SKILL.md` — one skill for reports; `planning` (requirements, page plan, approval gate), `design` (archetype routing, layout, theme, accessibility), `authoring` (PBIR/PBIP file mechanics, Desktop reload/screenshot) and `management` (Fabric report item CRUD via `az rest`) are modes
 - Spark skill: `skills/spark-cli/SKILL.md` — notebook authoring and runs, Livy analysis, read-only diagnostics, and MLV lifecycle operations
 - Variable Library (CI/CD): parameterize workspaces across environments — author definitions, value sets, and active value set item state, and wire consumers to Variable Library references (see `skills/variable-library-cli/SKILL.md`)
 
@@ -83,7 +82,7 @@ Fabric REST APIs: https://learn.microsoft.com/en-us/rest/api/fabric/articles/
 - Parameterize everything for reusability
 - Warehouse operations skill: `skills/sqldw-cli/SKILL.md` — performance diagnostics, slow queries, query insights
 - Azure Monitor observability operations skill: `skills/azmon-mirroredcatalogs-operations-cli/SKILL.md` — onboard Azure Monitor / App Insights / Log Analytics observability data into Fabric and correlate telemetry with business data for business-impact insights, an optional Real-Time (KQL) dashboard, and opt-in Operations Agent instructions
-- OneLake catalog governance skill: `skills/onelake-catalog-govern-cli/SKILL.md` — audit and remediate domain, workspace, capacity, protection, and curation posture through permission-aware modes
+- OneLake catalog skill: `skills/onelake-catalog-cli/SKILL.md` — audit and remediate domain, workspace, capacity, protection, and curation posture through permission-aware modes, and (curate mode) suggest and, on owner confirmation, apply item descriptions, display names, and tags, plus table and column descriptions, grounded in item content
 
 ### Git Integration (ALM / CI-CD)
 - Operations skill: `skills/git-integration-operations-cli/SKILL.md` — automate the Git integration lifecycle from CLI (connect to Azure DevOps/GitHub, commit, update/pull, sync status, resolve conflicts, disconnect, service-principal sync) via the Fabric CLI (`fab api`) with `az rest` fallback
@@ -95,6 +94,7 @@ Fabric REST APIs: https://learn.microsoft.com/en-us/rest/api/fabric/articles/
 
 ### Cost Estimation & Migration Planning
 - E2E skill: `skills/e2e-fabric-cost-estimation/SKILL.md` — estimate Fabric capacity costs, SKU sizing, billing strategy, workload CU equivalence mapping
+- Synapse migration skill: `skills/synapse-migration/SKILL.md` — migrate Synapse Spark, Lake Database/HMS, Dedicated SQL Pool schema and procedures, and explicitly approved dependent procedure callers to Fabric
 
 ### Power BI / FabricIQ
 - Consumption skill: `skills/fabriciq/SKILL.md` — raw DAX queries against semantic models via MCP ExecuteQuery tool

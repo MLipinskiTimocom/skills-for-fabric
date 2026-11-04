@@ -16,23 +16,23 @@ rules:
   - name: delta_lake_format
     description: Always use Delta Lake format for Lakehouse tables
     pattern: "spark.write.format(\"delta\")"
-    
+
   - name: mssparkutils_usage
     description: Use mssparkutils for Fabric-specific operations
     applies_to: ["*.py", "*.ipynb"]
-    
+
   - name: spark_optimization
     description: Run OPTIMIZE and VACUUM for Delta table maintenance
-    
+
   # Warehouse
   - name: tsql_surface_area
     description: Check T-SQL surface area - not all SQL Server features supported
     reference: https://learn.microsoft.com/en-us/fabric/data-warehouse/tsql-surface-area
-    
+
   - name: limit_queries
     description: Always use TOP/LIMIT when exploring data
     pattern: "SELECT TOP"
-    
+
   # KQL (Real-Time Intelligence)
   - name: kql_time_filter
     description: Always include time filters in KQL queries
@@ -53,6 +53,10 @@ rules:
   - name: spark
     description: Use spark-cli for notebook authoring and runs, Livy analysis, Spark diagnostics, and the full Materialized Lake View lifecycle
     reference: skills/spark-cli/SKILL.md
+
+  - name: project_osmos
+    description: Use project-osmos for complex long-running Lakehouse, OneLake, notebook, or Spark outcomes from local agents; in Fabric portal Copilot return availability guidance without API calls
+    reference: skills/project-osmos/SKILL.md
 
   - name: azmon_operations
     description: Use azmon-mirroredcatalogs-operations-cli to onboard Azure Monitor / App Insights / Log Analytics observability data into Fabric and correlate telemetry with business data for business-impact insights, an optional Real-Time (KQL) dashboard, and opt-in Operations Agent instructions
@@ -84,6 +88,10 @@ rules:
     description: Use e2e-fabric-cost-estimation for Fabric capacity cost estimation, SKU sizing, and billing strategy
     reference: skills/e2e-fabric-cost-estimation/SKILL.md
 
+  - name: synapse_migration
+    description: Migrate Synapse Spark, Lake Database/HMS, Dedicated SQL Pool schema and procedures, and explicitly approved dependent procedure callers to Fabric
+    reference: skills/synapse-migration/SKILL.md
+
   - name: fabriciq_skills
     description: >
       Consumption skill is FabricIQ skill (multi-step Power BI analysis). MANDATORY: read
@@ -106,30 +114,22 @@ rules:
     description: Use POST /v1/catalog/search to find items across workspaces by name, description, or type
     reference: skills/search-consumption-cli/SKILL.md
 
-  - name: onelake_catalog_governance
-    description: Audit and remediate OneLake catalog governance through permission-aware admin and data-owner modes
-    reference: skills/onelake-catalog-govern-cli/SKILL.md
+  - name: onelake_catalog
+    description: One onelake-catalog-cli skill; governance audits and guarded remediation through permission-aware admin and data-owner modes, and a curate mode that suggests and, on owner confirmation, applies item descriptions, display names, and tags, plus table and column descriptions, grounded in item content
+    reference: skills/onelake-catalog-cli/SKILL.md
 
-  - name: powerbi_report_planning
-    description: Plan and gather requirements before authoring PBIR — use for "build a new dashboard" intents
-    reference: skills/powerbi-report-planning/SKILL.md
-
-  - name: powerbi_report_design
-    description: Produce the design brief (tone, archetype, layout, theme) before PBIR edits
-    reference: skills/powerbi-report-design/SKILL.md
-
-  - name: powerbi_report_authoring
-    description: Edit PBIR/PBIP files (pages, visuals, formatting, themes) and validate via the CLI
-    reference: skills/powerbi-report-authoring/SKILL.md
-
-  - name: powerbi_report_management
-    description: Manage Fabric Power BI report items (create/get/update/delete) via az rest
-    reference: skills/powerbi-report-management/SKILL.md
+  - name: powerbi_report_skills
+    description: One powerbi-report-cli skill; planning, design, authoring and management are modes covering requirements, design brief, PBIR/PBIP edits, and Fabric report item CRUD
+    reference: skills/powerbi-report-cli/SKILL.md
 
   # Warehouse Operations
   - name: sqldw_skills
     description: One skill, sqldw-cli, with authoring, consumption and operations modes
     reference: skills/sqldw-cli/SKILL.md
+
+  - name: synapse_dedicated_pool_to_warehouse
+    description: Use synapse-migration for Synapse Dedicated SQL Pool-to-Warehouse migrations; run source Dedicated Pool SQL with sqlcmd and target Fabric Warehouse SQL with the Fabric SQL Endpoint MCP execute_query tool. Use sqldw-cli for standalone Warehouse work outside that migration.
+    reference: skills/synapse-migration/SKILL.md
 
   # SQL Database (in Fabric) Operations
   - name: sqldb_skills
@@ -148,7 +148,7 @@ rules:
       - "password="
       - "secret="
       - "connectionstring="
-      
+
   # Architecture
   - name: medallion_architecture
     description: Prefer Bronze/Silver/Gold data organization

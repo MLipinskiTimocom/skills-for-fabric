@@ -32,6 +32,7 @@ Developers use REST APIs to manage artifacts, then protocol-specific connections
 - Use mssparkutils for Fabric-specific operations (fs, credentials, notebook)
 - Include partition columns for large tables
 - Run OPTIMIZE and VACUUM for table maintenance
+- Use `skills/project-osmos/SKILL.md` when a local agent should carry a complex Lakehouse, OneLake, notebook, or Spark outcome end to end; Fabric portal Copilot returns availability guidance without Project Osmos API calls.
 - Use `skills/spark-cli/SKILL.md` for notebook authoring and runs, Livy analysis, Spark diagnostics, and the full Materialized Lake View lifecycle.
 - MLV authoring resources: `skills/spark-cli/references/authoring/resources/materialized-lake-view-patterns.md` and `skills/spark-cli/references/authoring/resources/mlv-incremental-refresh-patterns.md`.
 
@@ -41,6 +42,7 @@ Developers use REST APIs to manage artifacts, then protocol-specific connections
 - Prefer stored procedures for reusable logic
 - Always include TOP/LIMIT when exploring data
 - Skill: `skills/sqldw-cli/SKILL.md` - one skill with authoring, consumption and operations modes
+- Synapse Dedicated SQL Pool-to-Warehouse migration: use `skills/synapse-migration/SKILL.md`; run source Dedicated Pool SQL with `sqlcmd` and target Fabric Warehouse SQL with the Fabric SQL Endpoint MCP `execute_query` tool. Use `sqldw-cli` for standalone Warehouse work outside that migration.
 
 ### SQL Database (in Fabric, OLTP)
 - OLTP database with an enforced T-SQL surface (PK/FK/constraints), Query Store, and DMVs - distinct from the Warehouse
@@ -99,6 +101,7 @@ Developers use REST APIs to manage artifacts, then protocol-specific connections
 
 ### Cost Estimation & Migration Planning
 - E2E skill: `skills/e2e-fabric-cost-estimation/SKILL.md` — Fabric capacity cost estimation, SKU sizing, billing strategy
+- Synapse migration skill: `skills/synapse-migration/SKILL.md` — migrate Synapse Spark, Lake Database/HMS, Dedicated SQL Pool schema and procedures, and explicitly approved dependent procedure callers to Fabric
 
 ### Deployment Pipelines (ALM / CI-CD)
 - Use Fabric REST API to create deployment pipelines, assign workspaces to stages, and deploy stage content across dev/test/prod
@@ -120,10 +123,11 @@ Developers use REST APIs to manage artifacts, then protocol-specific connections
 - Use empty search string with type filter to list all items of a type
 - Consumption skill: `skills/search-consumption-cli/SKILL.md`
 
-### OneLake Catalog Governance
-- Use `skills/onelake-catalog-govern-cli/SKILL.md` for permission-aware admin/data-owner audits and guarded remediation
-- Start in the audit mode for the caller's API tier before any write
+### OneLake Catalog (governance and curation)
+- Use `skills/onelake-catalog-cli/SKILL.md` for permission-aware admin/data-owner audits and guarded remediation, and for owner curation of item descriptions, display names, tags, and table and column descriptions
+- Start governance in the audit mode for the caller's API tier before any write; a direct curation request goes straight to curate
 - Treat domain assignment as governance metadata, not an access-control boundary
+- Never write item metadata before the owner reviews the proposed changes and confirms
 
 ### Semantic Models (DAX)
 - Primary CLI tool: `az rest` against the Fabric REST API
@@ -133,10 +137,7 @@ Developers use REST APIs to manage artifacts, then protocol-specific connections
 
 ### Power BI Reports (PBIR/PBIP)
 - Keep planning, design, local PBIR edits, and Fabric item management as separate phases
-- Planning: `skills/powerbi-report-planning/SKILL.md`
-- Design: `skills/powerbi-report-design/SKILL.md`
-- Authoring: `skills/powerbi-report-authoring/SKILL.md`
-- Management: `skills/powerbi-report-management/SKILL.md`
+- Power BI report skill: `skills/powerbi-report-cli/SKILL.md` (planning, design, authoring and management are modes)
 
 ### Data Agents
 - Use Python SDK within Fabric notebooks for rapid prototyping

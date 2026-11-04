@@ -2,6 +2,89 @@
 
 User-facing changes for the public Microsoft Fabric Skills release.
 
+## [Unreleased]
+
+## [0.3.20] - 2026-10-29
+
+### Added
+- **`onelake-catalog-cli`** -- one skill for the OneLake catalog. It picks the right mode from your request: the four existing governance modes (tenant-admin and data-owner audits and guarded remediation of domains, workspace assignment, capacity, labels, tag definitions, workspace tags, certification, refresh and item identity), and a new **curate** mode that helps item owners make Microsoft Fabric items easier to find by suggesting a description, display name, and tags based on the item's content, plus descriptions for its tables and columns, and applying each suggestion only after the owner reviews and confirms it. Curate works on one item, a list of items, or one workspace. Governance audits report description and tag coverage; to fix the gaps you pick, they hand off to curate, which still asks you to approve every suggestion.
+
+### Changed
+- **Skill and plugin paths** -- governance moved from `skills/onelake-catalog-govern-cli` to `skills/onelake-catalog-cli` with its references at the same relative paths. Anything pinning the old path moves to the new one. Item descriptions, display names and item tags are now written only by curate mode; governance keeps workspace tags and tenant tag definitions, and no longer writes item descriptions or item tags itself.
+
+### Removed
+- **`onelake-catalog-govern-cli`** -- replaced by the governance modes of `onelake-catalog-cli`. Existing governance prompts keep working.
+
+## [0.3.19] - 2026-10-01
+
+### Changed
+- **`synapse-migration`** -- Dedicated SQL Pool-to-Lakehouse migrations can now optionally repoint exact dependent Azure Data Factory and Synapse procedure callers after their generated Fabric notebooks are ready, while preserving explicit approval and no-automatic-execution safeguards.
+- **`powerbi-report-cli`** -- mandatory validation screenshots now use a
+  temporary per-run directory under the local application-data location when no
+  validation location is supplied. Explicit save/export/keep destinations are
+  retained, while project or synchronized locations receive an exposure warning.
+- **`powerbi-report-cli`** -- multi-turn publish workflows reduce repeated
+  workspace, item, file, and semantic-model discovery while preserving binding
+  validation. Definition downloads retain the required `?format=PBIR` query,
+  and publish flows resolve the supplied workspace name before asking how to
+  handle the semantic model.
+- **`powerbi-report-cli`** -- locked-spec planning now reuses a complete schema
+  and page plan supplied in the request instead of redundantly inspecting an
+  unrelated local report project.
+- **`powerbi-report-cli`** -- greenfield build-and-publish requests now stop at
+  the locked-spec approval barrier until the user approves in a later reply.
+
+### Fixed
+- **`synapse-migration`** -- generated Fabric notebooks are now rejected before publication when their parameter handling could accept missing required values, mis-handle SQL NULL, or alter source behavior.
+- **`synapse-migration`** -- Dedicated Pool discovery now handles incomplete DACPAC scripting safely, schema deployment is resumable without altering incompatible existing targets, notebook publication validates persisted definitions, and approved special-character columns are supported in new Delta tables.
+- **`synapse-migration`** -- Dedicated Pool procedures containing dynamic SQL, cursors, or control-flow loops now remain in manual review instead of being treated as automatic conversion candidates.
+- **`synapse-migration`** -- Dedicated Pool migrations now provide clearer progress and resumable recovery for large conversions while preserving detailed audit evidence.
+- **`powerbi-report-cli`** -- corrected split-reference navigation so report
+  authoring, formatting, preview, theming, and management guidance resolves to
+  the physical continuation file that contains each referenced section.
+
+## [0.3.18] - 2026-09-24
+
+### Added
+- **`skills/powerbi-report-cli`** -- added detailed guidance for same-report
+  drillthrough, bookmarks, buttons and actions, custom visuals, field parameters,
+  KPI visuals, semantic-model binding, and Desktop or service preview workflows.
+- **`project-osmos`** — run complex, long-running Fabric and OneLake data-engineering outcomes from local agents with safe intake, continuation, and task lifecycle guidance; Fabric portal Copilot explains current availability and how to install the Skills for Fabric marketplace in GitHub Copilot CLI.
+
+### Changed
+- **`powerbi-report-cli`** -- strengthened planning, design, authoring, validation, screenshot review, and Fabric publishing guidance, including safer preview routing and pre-publish model-binding checks
+- **`powerbi-report-cli`** -- routes normal Desktop work through
+  `powerbi-report-author preview` and adds model-aware reload guidance with the
+  required semantic-model processing, DAX verification, and rendered review.
+- **`synapse-migration`** now migrates dedicated SQL pools in Synapse workspaces or standalone deployments to Fabric Lakehouse as schema and code artifacts without source rows, or to Fabric Warehouse with compatibility assessment, security migration, validation, and optional separately approved data movement.
+
+### Fixed
+- **`powerbi-report-cli`** -- fixed broken reference anchors and made the
+  planning contract continuation mandatory before producing an approved report
+  specification; split-guide navigation now names the continuation file instead
+  of linking to headings that are not present in the current document.
+
+## [0.3.17] - 2026-09-17
+
+### Added
+- **`skills/semantic-model-authoring`** -- adds guidance for creating, editing, reordering, renaming, and deleting Power BI field parameters through the modeling MCP or TMDL.
+- **`powerbi-report-cli`** -- one Power BI report skill covering the whole report item. It picks the right mode from your request: planning for requirements, scope and the approval gate; design for tone, page archetype, chart choice, layout, colour, typography and accessibility; authoring for local PBIR/PBIP page, visual, filter, slicer, theme and formatting edits plus PBIR validation and Power BI Desktop verification; and management for publishing, rebinding and updating report items in Fabric.
+
+### Changed
+- **`powerbi-authoring` bundle** -- now ships the single `powerbi-report-cli` skill in place of the four separate Power BI report skills. Existing report prompts keep working and you no longer need to pick a skill per phase; ask for the report outcome you want and the skill selects the mode.
+- **FabricIQ MCP server** -- the endpoint moved from `https://api.fabric.microsoft.com/v1/mcp/fabricaihub/integrations/m365` to `https://fabriciq.svc.cloud.microsoft/v1/mcp/fabriciq`, and the required routing header changed from `X-VARIANTS: Fabric.Routing.PowerBIDataExploration` to `X-VARIANTS: Fabric.Routing.FabricIQ.V1`. Your existing token keeps working: the new endpoint accepts both the Power BI audience (`https://analysis.windows.net/powerbi/api`) and the Fabric audience (`https://api.fabric.microsoft.com`), so nothing needs re-minting. The bundled configuration is already updated; if you registered FabricIQ by hand in your own MCP client config, re-register it with the new URL and header — the MCP setup instructions have the updated commands.
+- **FabricIQ skill and agent** -- the `ResolveReportIdFromUrl(url)` tool is replaced by `ResolveFabricItem(fabricItemId=<guid-or-url>)` on the new endpoint. It accepts a bare item GUID (preferred) as well as a supported Fabric or Power BI artifact URL, and returns the canonical `fabricItemId`, `itemType`, `workspaceId` when known, plus optional next-step instructions. The other FabricIQ tools (`DiscoverArtifacts`, `GetReportMetadata`, `GetSemanticModelSchema`, `ValueSearch`, `ExecuteQuery`) are unchanged, so the rest of the documented workflow is unaffected.
+- **APM packaging** -- installing the collection, or the FabricIQ skill on its own, now registers the new endpoint and routing header.
+
+### Removed
+- **`powerbi-report-authoring`**, **`powerbi-report-design`**, **`powerbi-report-management`** and **`powerbi-report-planning`** -- replaced by the matching modes of `powerbi-report-cli`. This is a **rename as well as a merge**: the four skills carried no access-method suffix and the merged skill adds the `-cli` discriminator, so if you pin any of those four skills by name, switch to `powerbi-report-cli`.
+
+### Fixed
+- **FabricIQ lost automatic Azure CLI sign-in in Claude Code** — the bundled plugin attaches a native Azure CLI `headersHelper` to its remote MCP servers by matching the Fabric API host. Because FabricIQ now answers on its own service host, it no longer matched and was shipped as the only remote server in the bundle with no way to authenticate, so its tools failed to connect after install. Host detection now covers the FabricIQ endpoint as well, and all three bundled remote MCP servers again sign in from your existing `az login` with no extra prompt.
+- **Claude Desktop registration was broken for every MCP server, not just FabricIQ** -- the provided registration scripts wrote a bridge entry invoking `@anthropic/mcp-proxy`, which is not a published npm package, so the generated configuration could never start. They now write a pinned `mcp-remote` entry and forward the routing header and bearer token through its `--header` flag, which is what FabricIQ needs to authenticate.
+- **The registration scripts no longer write a Claude credential that cannot work** -- when asked for API-key authentication they produced `Authorization: api-key <key>`, which is not a real authentication scheme, and when asked for bearer authentication without a token they wrote the literal text `${FABRIC_MCP_TOKEN}` as the credential, because Claude passes those values through unchanged instead of substituting them. Both cases now skip the header and tell you exactly what to re-run, so a broken sign-in surfaces immediately instead of as a confusing connection failure later.
+- **Manual VS Code setup instructions** -- the example used the legacy `github.copilot.chat.mcpServers` setting and omitted the routing header and token, so following it produced a server that connected and then failed on every call. It now shows the current `mcp.json` `servers` shape with a `headers` object and a prompted, password-masked token input.
+
 ## [0.3.16] - 2026-09-10
 
 ### Added
